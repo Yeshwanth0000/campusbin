@@ -66,7 +66,7 @@ export const ELECTRONICS_TYPE_GROUPS: CategoryFieldOptionGroup[] = [
 export const APPLIANCE_TYPE_GROUPS: CategoryFieldOptionGroup[] = [
   {
     label: "Kitchen & Cooking",
-    options: ["Electric Kettle", "Blender"],
+    options: ["Electric Kettle", "Blender", "Egg Boiler"],
   },
   {
     label: "Cooling & Comfort",
@@ -75,6 +75,10 @@ export const APPLIANCE_TYPE_GROUPS: CategoryFieldOptionGroup[] = [
   {
     label: "Cleaning & Personal Care",
     options: ["Iron / Steam Iron", "Hair Dryer / Trimmer"],
+  },
+  {
+    label: "Lighting",
+    options: ["Study Lamp"],
   },
 ];
 
