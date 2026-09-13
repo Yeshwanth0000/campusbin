@@ -303,6 +303,7 @@ export type Database = {
           hostel_or_branch: string | null
           id: string
           is_admin: boolean
+          is_superadmin: boolean
           phone_number: string | null
         }
         Insert: {
@@ -313,6 +314,7 @@ export type Database = {
           hostel_or_branch?: string | null
           id: string
           is_admin?: boolean
+          is_superadmin?: boolean
           phone_number?: string | null
         }
         Update: {
@@ -323,6 +325,7 @@ export type Database = {
           hostel_or_branch?: string | null
           id?: string
           is_admin?: boolean
+          is_superadmin?: boolean
           phone_number?: string | null
         }
         Relationships: [
@@ -485,7 +488,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_dashboard_overview: {
+        Args: { p_college_id?: string; p_granularity?: string }
+        Returns: Json
+      }
       admin_dashboard_stats: { Args: never; Returns: Json }
+      college_display_name: { Args: { p_root: string }; Returns: string }
       delete_own_account: { Args: never; Returns: undefined }
       expire_stale_listings: { Args: never; Returns: undefined }
       get_homepage_stats: {
@@ -501,6 +509,22 @@ export type Database = {
       }
       increment_listing_view: {
         Args: { p_listing_id: string }
+        Returns: undefined
+      }
+      institution_domain: { Args: { p_domain: string }; Returns: string }
+      search_users_for_admin: {
+        Args: { p_query: string }
+        Returns: {
+          college_id: string
+          college_name: string
+          full_name: string
+          id: string
+          is_admin: boolean
+          is_superadmin: boolean
+        }[]
+      }
+      set_college_admin: {
+        Args: { p_is_admin: boolean; p_target_user_id: string }
         Returns: undefined
       }
     }
