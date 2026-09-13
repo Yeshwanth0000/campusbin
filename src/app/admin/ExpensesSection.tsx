@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { addExpense, deleteExpense } from "./actions";
+import { addExpense, updateExpense, deleteExpense } from "./actions";
 import { HBarChart } from "./charts";
 
 export type Expense = {
@@ -28,6 +28,7 @@ function money(amount: number, currency: string) {
 export default function ExpensesSection({ initialExpenses }: { initialExpenses: Expense[] }) {
   const [expenses, setExpenses] = useState(initialExpenses);
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -79,7 +80,31 @@ export default function ExpensesSection({ initialExpenses }: { initialExpenses: 
     setRecurringInterval("yearly");
   }
 
-  function handleAdd(e: React.FormEvent) {
+  function startAdd() {
+    setEditingId(null);
+    resetForm();
+    setShowForm(true);
+  }
+
+  function startEdit(exp: Expense) {
+    setEditingId(exp.id);
+    setDescription(exp.description);
+    setCategory(exp.category);
+    setAmount(String(exp.amount));
+    setCurrency(exp.currency);
+    setIncurredOn(exp.incurred_on);
+    setIsRecurring(exp.is_recurring);
+    setRecurringInterval(exp.recurring_interval ?? "yearly");
+    setShowForm(true);
+  }
+
+  function closeForm() {
+    setShowForm(false);
+    setEditingId(null);
+    resetForm();
+  }
+
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const amountNum = Number(amount);
     if (!description.trim() || amount.trim() === "" || Number.isNaN(amountNum) || amountNum < 0) {
@@ -87,39 +112,31 @@ export default function ExpensesSection({ initialExpenses }: { initialExpenses: 
       return;
     }
     setError(null);
+    const input = {
+      description: description.trim(),
+      category,
+      amount: amountNum,
+      currency,
+      incurred_on: incurredOn,
+      is_recurring: isRecurring,
+      recurring_interval: isRecurring ? recurringInterval : null,
+      notes: null,
+    };
     startTransition(async () => {
-      const result = await addExpense({
-        description: description.trim(),
-        category,
-        amount: amountNum,
-        currency,
-        incurred_on: incurredOn,
-        is_recurring: isRecurring,
-        recurring_interval: isRecurring ? recurringInterval : null,
-        notes: null,
-      });
+      const result = editingId ? await updateExpense(editingId, input) : await addExpense(input);
       if (result.error) {
         setError(result.error);
         return;
       }
-      // Optimistic local id -- the real row reappears with its true id on
-      // next navigation; this just keeps the list live without a refetch.
-      setExpenses((prev) => [
-        {
-          id: `pending-${Date.now()}`,
-          description: description.trim(),
-          category,
-          amount: amountNum,
-          currency,
-          incurred_on: incurredOn,
-          is_recurring: isRecurring,
-          recurring_interval: isRecurring ? recurringInterval : null,
-          notes: null,
-        },
-        ...prev,
-      ]);
-      resetForm();
-      setShowForm(false);
+      if (editingId) {
+        const id = editingId;
+        setExpenses((prev) => prev.map((exp) => (exp.id === id ? { ...exp, ...input } : exp)));
+      } else {
+        // Optimistic local id -- the real row reappears with its true id on
+        // next navigation; this just keeps the list live without a refetch.
+        setExpenses((prev) => [{ id: `pending-${Date.now()}`, ...input }, ...prev]);
+      }
+      closeForm();
     });
   }
 
@@ -131,6 +148,7 @@ export default function ExpensesSection({ initialExpenses }: { initialExpenses: 
         setError(result.error);
       } else {
         setExpenses((prev) => prev.filter((e) => e.id !== id));
+        if (editingId === id) closeForm();
       }
       setDeletingId(null);
     });
@@ -158,7 +176,7 @@ export default function ExpensesSection({ initialExpenses }: { initialExpenses: 
         </div>
         <button
           type="button"
-          onClick={() => setShowForm((s) => !s)}
+          onClick={() => (showForm ? closeForm() : startAdd())}
           className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-dark"
         >
           {showForm ? "Cancel" : "+ Add expense"}
@@ -172,7 +190,10 @@ export default function ExpensesSection({ initialExpenses }: { initialExpenses: 
       )}
 
       {showForm && (
-        <form onSubmit={handleAdd} className="mt-4 grid gap-3 rounded-xl border border-slate-200/70 bg-white/60 p-4 dark:border-slate-800/70 dark:bg-slate-900/40 sm:grid-cols-2">
+        <form onSubmit={handleSubmit} className="mt-4 grid gap-3 rounded-xl border border-slate-200/70 bg-white/60 p-4 dark:border-slate-800/70 dark:bg-slate-900/40 sm:grid-cols-2">
+          {editingId && (
+            <p className="text-xs font-semibold text-brand sm:col-span-2">Editing expense</p>
+          )}
           <label className="text-xs font-medium text-slate-600 dark:text-slate-400 sm:col-span-2">
             Description
             <input
@@ -262,7 +283,7 @@ export default function ExpensesSection({ initialExpenses }: { initialExpenses: 
               disabled={isPending}
               className="ml-auto rounded-full bg-brand px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-brand-dark disabled:opacity-50"
             >
-              {isPending ? "Saving…" : "Save expense"}
+              {isPending ? "Saving…" : editingId ? "Update expense" : "Save expense"}
             </button>
           </div>
         </form>
@@ -315,14 +336,23 @@ export default function ExpensesSection({ initialExpenses }: { initialExpenses: 
                     )}
                   </td>
                   <td className="py-2 text-right">
-                    <button
-                      type="button"
-                      disabled={isPending && deletingId === e.id}
-                      onClick={() => handleDelete(e.id)}
-                      className="text-xs font-medium text-slate-400 hover:text-rose-600 disabled:opacity-50 dark:text-slate-500 dark:hover:text-rose-400"
-                    >
-                      {isPending && deletingId === e.id ? "…" : "Remove"}
-                    </button>
+                    <div className="flex items-center justify-end gap-3">
+                      <button
+                        type="button"
+                        onClick={() => startEdit(e)}
+                        className="text-xs font-medium text-slate-400 hover:text-brand dark:text-slate-500 dark:hover:text-brand"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        disabled={isPending && deletingId === e.id}
+                        onClick={() => handleDelete(e.id)}
+                        className="text-xs font-medium text-slate-400 hover:text-rose-600 disabled:opacity-50 dark:text-slate-500 dark:hover:text-rose-400"
+                      >
+                        {isPending && deletingId === e.id ? "…" : "Remove"}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

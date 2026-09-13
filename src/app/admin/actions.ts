@@ -55,6 +55,16 @@ export async function addExpense(input: ExpenseInput): Promise<ExpenseResult> {
   return { error: null };
 }
 
+export async function updateExpense(id: string, input: ExpenseInput): Promise<ExpenseResult> {
+  const supabase = await createClient();
+  const { error } = await supabase.from("platform_expenses").update(input).eq("id", id);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/admin");
+  return { error: null };
+}
+
 export async function deleteExpense(id: string): Promise<ExpenseResult> {
   const supabase = await createClient();
   const { error } = await supabase.from("platform_expenses").delete().eq("id", id);
