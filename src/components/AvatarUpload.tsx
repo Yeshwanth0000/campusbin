@@ -90,7 +90,7 @@ export default function AvatarUpload({
         onClick={() => inputRef.current?.click()}
         disabled={isPending}
         aria-label={avatarUrl ? "Change profile photo" : "Add profile photo"}
-        className="absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-slate-900 text-white opacity-0 transition-opacity hover:bg-slate-800 focus-visible:opacity-100 group-hover:opacity-100 disabled:pointer-events-none dark:border-slate-900 dark:bg-slate-700"
+        className="absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-slate-900 text-white opacity-100 transition-opacity hover:bg-slate-800 disabled:pointer-events-none dark:border-slate-900 dark:bg-slate-700 sm:opacity-0 sm:focus-visible:opacity-100 sm:group-hover:opacity-100"
       >
         <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.5">
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14M5 12h14" />
@@ -109,7 +109,7 @@ export default function AvatarUpload({
           type="button"
           onClick={handleRemove}
           disabled={isPending}
-          className="absolute -bottom-1 left-1/2 -translate-x-1/2 translate-y-full whitespace-nowrap pt-1 text-[11px] font-medium text-slate-400 opacity-0 transition-opacity hover:text-red-500 focus-visible:opacity-100 group-hover:opacity-100 disabled:pointer-events-none"
+          className="absolute -bottom-1 left-1/2 -translate-x-1/2 translate-y-full whitespace-nowrap pt-1 text-[11px] font-medium text-slate-400 opacity-100 transition-opacity hover:text-red-500 disabled:pointer-events-none sm:opacity-0 sm:focus-visible:opacity-100 sm:group-hover:opacity-100"
         >
           Remove
         </button>

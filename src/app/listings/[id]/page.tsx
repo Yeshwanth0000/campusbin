@@ -10,6 +10,7 @@ import SaveButton from "@/components/SaveButton";
 import SafetyMenu from "@/components/SafetyMenu";
 import ViewTracker from "@/components/ViewTracker";
 import RelistButton from "@/components/RelistButton";
+import DeleteListingForm from "@/components/DeleteListingForm";
 import Avatar from "@/components/Avatar";
 import { getCategoryFields } from "@/lib/categoryFields";
 import { conditionBadgeClasses, conditionLabel } from "@/lib/conditionBadge";
@@ -335,14 +336,7 @@ export default async function ListingDetailPage({
                   {(listing.status === "sold" || listing.status === "expired") && (
                     <RelistButton listingId={id} />
                   )}
-                  <form action={handleDelete}>
-                    <button
-                      type="submit"
-                      className="w-full rounded-md border border-red-200 px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950/40"
-                    >
-                      Delete listing
-                    </button>
-                  </form>
+                  <DeleteListingForm action={handleDelete} />
                 </>
               ) : (
                 listing.status === "available" &&
