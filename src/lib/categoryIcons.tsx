@@ -13,7 +13,6 @@ export const CATEGORY_ICONS: Record<string, string> = {
   gaming: "🎮",
   vehicles: "🛵",
   appliances: "🔌",
-  calculators: "🧮",
   other: "📦",
 };
 
@@ -37,7 +36,30 @@ function CoolerIcon() {
   );
 }
 
+// Unicode's actual calculator character (U+1F5A9) isn't a recommended
+// emoji, so most fonts render it as plain black-and-white text or don't
+// carry it at all — the closest reliable stand-in (an abacus) doesn't
+// look like a calculator. Drawn instead, for the same reason as coolers.
+function CalculatorIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true">
+      <rect x="5" y="2" width="14" height="20" rx="2" fill="#475569" stroke="#1e293b" strokeWidth="1" />
+      <rect x="7" y="4.5" width="10" height="4" rx="0.5" fill="#bbf7d0" />
+      <rect x="7" y="10.5" width="2.6" height="2.2" rx="0.4" fill="#cbd5e1" />
+      <rect x="10.7" y="10.5" width="2.6" height="2.2" rx="0.4" fill="#cbd5e1" />
+      <rect x="14.4" y="10.5" width="2.6" height="2.2" rx="0.4" fill="#f97316" />
+      <rect x="7" y="13.4" width="2.6" height="2.2" rx="0.4" fill="#cbd5e1" />
+      <rect x="10.7" y="13.4" width="2.6" height="2.2" rx="0.4" fill="#cbd5e1" />
+      <rect x="14.4" y="13.4" width="2.6" height="2.2" rx="0.4" fill="#cbd5e1" />
+      <rect x="7" y="16.3" width="2.6" height="2.2" rx="0.4" fill="#cbd5e1" />
+      <rect x="10.7" y="16.3" width="2.6" height="2.2" rx="0.4" fill="#cbd5e1" />
+      <rect x="14.4" y="16.3" width="2.6" height="2.2" rx="0.4" fill="#cbd5e1" />
+    </svg>
+  );
+}
+
 export function categoryIcon(slug: string): ReactNode {
   if (slug === "coolers") return <CoolerIcon />;
+  if (slug === "calculators") return <CalculatorIcon />;
   return CATEGORY_ICONS[slug] ?? "🏷️";
 }
