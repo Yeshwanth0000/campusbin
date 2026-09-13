@@ -59,7 +59,7 @@ export const ELECTRONICS_TYPE_GROUPS: CategoryFieldOptionGroup[] = [
   },
   {
     label: "Other",
-    options: ["Calculator", "Networking (Router / Modem)", "Other electronics"],
+    options: ["Networking (Router / Modem)", "Other electronics"],
   },
 ];
 
@@ -115,6 +115,10 @@ export const CATEGORY_CUSTOM_FIELDS: Record<string, CategoryFieldDef[]> = {
   coolers: [
     { key: "brand", label: "Brand", placeholder: "e.g. Symphony, Bajaj" },
     { key: "capacity", label: "Capacity", placeholder: "e.g. 20L, 50L, 70L" },
+  ],
+  calculators: [
+    { key: "brand", label: "Brand", placeholder: "e.g. Casio, Texas Instruments" },
+    { key: "model", label: "Model", placeholder: "e.g. fx-991ES" },
   ],
 };
 
