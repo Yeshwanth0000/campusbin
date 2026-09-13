@@ -82,8 +82,8 @@ export default function ExpensesSection({ initialExpenses }: { initialExpenses: 
   function handleAdd(e: React.FormEvent) {
     e.preventDefault();
     const amountNum = Number(amount);
-    if (!description.trim() || !amountNum || amountNum <= 0) {
-      setError("Enter a description and a positive amount.");
+    if (!description.trim() || amount.trim() === "" || Number.isNaN(amountNum) || amountNum < 0) {
+      setError("Enter a description and a non-negative amount (0 is fine for a free tier).");
       return;
     }
     setError(null);
