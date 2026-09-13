@@ -29,7 +29,20 @@ export const SERIES_COLORS = {
   expired: "#f59e0b",
 };
 
-export const CHART_PALETTE = ["#4f46e5", "#10b981", "#f59e0b", "#ef4444", "#0ea5e9", "#a855f7", "#ec4899", "#84cc16"];
+export const CHART_PALETTE = [
+  "#4f46e5", // indigo
+  "#10b981", // emerald
+  "#f59e0b", // amber
+  "#ef4444", // red
+  "#0ea5e9", // sky
+  "#a855f7", // purple
+  "#ec4899", // pink
+  "#84cc16", // lime
+  "#14b8a6", // teal
+  "#f97316", // orange
+  "#6366f1", // violet
+  "#eab308", // yellow
+];
 
 const AXIS_STYLE = { fontSize: 11, fill: "#94a3b8" };
 const GRID_STROKE = "currentColor";
@@ -103,15 +116,19 @@ function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: 
 }
 
 // Horizontal bar chart — colleges, categories, price buckets, book
-// departments all share this shape (a label and a count).
+// departments all share this shape (a label and a count). Each bar gets
+// its own color from the palette rather than one flat accent — with no
+// natural order to these categories, distinct hues make each one easier
+// to pick out at a glance, and it's what makes a BI-style chart look
+// "alive" instead of a single tinted silhouette.
 export function HBarChart({
   data,
-  color = "#4f46e5",
   height,
+  colors = CHART_PALETTE,
 }: {
   data: { label: string; value: number }[];
-  color?: string;
   height?: number;
+  colors?: string[];
 }) {
   return (
     <ResponsiveContainer width="100%" height={height ?? Math.max(120, data.length * 34)}>
@@ -127,15 +144,19 @@ export function HBarChart({
           width={110}
         />
         <Tooltip content={<ChartTooltip />} cursor={{ fill: "currentColor", className: "text-slate-100 dark:text-slate-800" } as object} />
-        <Bar dataKey="value" fill={color} radius={[0, 4, 4, 0]} maxBarSize={18} />
+        <Bar dataKey="value" radius={[0, 4, 4, 0]} maxBarSize={18}>
+          {data.map((_, i) => (
+            <Cell key={i} fill={colors[i % colors.length]} />
+          ))}
+        </Bar>
       </BarChart>
     </ResponsiveContainer>
   );
 }
 
 // Vertical bar chart — weekday distribution reads left-to-right as a week,
-// which a horizontal bar would obscure.
-export function VBarChart({ data, color = "#4f46e5" }: { data: { label: string; value: number }[]; color?: string }) {
+// which a horizontal bar would obscure. Same per-bar coloring as HBarChart.
+export function VBarChart({ data, colors = CHART_PALETTE }: { data: { label: string; value: number }[]; colors?: string[] }) {
   return (
     <ResponsiveContainer width="100%" height={140}>
       <BarChart data={data} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
@@ -143,7 +164,11 @@ export function VBarChart({ data, color = "#4f46e5" }: { data: { label: string; 
         <XAxis dataKey="label" tick={AXIS_STYLE} axisLine={false} tickLine={false} />
         <YAxis tick={AXIS_STYLE} axisLine={false} tickLine={false} width={28} allowDecimals={false} />
         <Tooltip content={<ChartTooltip />} cursor={{ fill: "currentColor", className: "text-slate-100 dark:text-slate-800" } as object} />
-        <Bar dataKey="value" fill={color} radius={[4, 4, 0, 0]} maxBarSize={28} />
+        <Bar dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={28}>
+          {data.map((_, i) => (
+            <Cell key={i} fill={colors[i % colors.length]} />
+          ))}
+        </Bar>
       </BarChart>
     </ResponsiveContainer>
   );

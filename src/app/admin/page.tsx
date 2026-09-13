@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { TrendAreaChart, Sparkline, HBarChart, VBarChart, DonutChart, SERIES_COLORS, CHART_PALETTE } from "./charts";
+import { TrendAreaChart, Sparkline, HBarChart, VBarChart, DonutChart, SERIES_COLORS } from "./charts";
 
 export const metadata = { title: "Dashboard — Admin — CampusBin" };
 export const dynamic = "force-dynamic";
@@ -347,7 +347,6 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
           <div className="grid gap-6 lg:grid-cols-2">
             <HBarChart
               data={stats.colleges.map((c) => ({ label: c.name, value: c.users }))}
-              color={SERIES_COLORS.signups}
               height={Math.max(100, stats.colleges.length * 40)}
             />
             <div className="overflow-x-auto">
@@ -397,34 +396,25 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
         <Panel title="By category" subtitle="Where the listings actually are">
           {stats.by_category.length > 0 ? (
-            <HBarChart
-              data={stats.by_category.map((c) => ({ label: c.name, value: c.listings }))}
-              color={CHART_PALETTE[0]}
-            />
+            <HBarChart data={stats.by_category.map((c) => ({ label: c.name, value: c.listings }))} />
           ) : (
             <Empty>No listings yet.</Empty>
           )}
         </Panel>
 
         <Panel title="Price spread" subtitle="Where the campus actually trades">
-          <HBarChart data={stats.price_buckets.map((b) => ({ label: b.label, value: b.n }))} color={CHART_PALETTE[2]} />
+          <HBarChart data={stats.price_buckets.map((b) => ({ label: b.label, value: b.n }))} />
         </Panel>
       </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
         <Panel title="By day of week" subtitle="When messages actually get sent">
-          <VBarChart
-            data={stats.by_weekday.map((w) => ({ label: WEEKDAY_LABELS[w.dow], value: w.n }))}
-            color={CHART_PALETTE[4]}
-          />
+          <VBarChart data={stats.by_weekday.map((w) => ({ label: WEEKDAY_LABELS[w.dow], value: w.n }))} />
         </Panel>
 
         <Panel title="Books by department" subtitle="Whether the field is being used">
           {stats.book_departments.length > 0 ? (
-            <HBarChart
-              data={stats.book_departments.map((d) => ({ label: d.name, value: d.n }))}
-              color={CHART_PALETTE[1]}
-            />
+            <HBarChart data={stats.book_departments.map((d) => ({ label: d.name, value: d.n }))} />
           ) : (
             <Empty>No book listings yet.</Empty>
           )}
