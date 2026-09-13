@@ -44,6 +44,25 @@ export const BOOK_DEPARTMENT_GROUPS: CategoryFieldOptionGroup[] = [
   },
 ];
 
+export const ELECTRONICS_TYPE_GROUPS: CategoryFieldOptionGroup[] = [
+  {
+    label: "Computers & Tablets",
+    options: ["Laptop", "Desktop / PC", "Tablet", "Monitor", "Keyboard / Mouse", "Printer"],
+  },
+  {
+    label: "Phones & Wearables",
+    options: ["Smartphone", "Smartwatch", "Charger / Cable", "Power Bank", "Phone Case / Screen Guard"],
+  },
+  {
+    label: "Audio & Camera",
+    options: ["Headphones / Earphones", "Speaker", "Camera"],
+  },
+  {
+    label: "Other",
+    options: ["Calculator", "Networking (Router / Modem)", "Other electronics"],
+  },
+];
+
 export const CATEGORY_CUSTOM_FIELDS: Record<string, CategoryFieldDef[]> = {
   books: [
     { key: "department", label: "Department", optionGroups: BOOK_DEPARTMENT_GROUPS },
@@ -51,6 +70,7 @@ export const CATEGORY_CUSTOM_FIELDS: Record<string, CategoryFieldDef[]> = {
     { key: "author", label: "Author", placeholder: "e.g. Joshua Bloch" },
   ],
   electronics: [
+    { key: "type", label: "Type", optionGroups: ELECTRONICS_TYPE_GROUPS },
     { key: "brand", label: "Brand", placeholder: "e.g. Dell, Apple, boAt" },
     { key: "model", label: "Model", placeholder: "e.g. Inspiron 15" },
   ],

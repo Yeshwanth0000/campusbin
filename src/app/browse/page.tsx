@@ -8,19 +8,22 @@ import SaveSearchButton from "@/components/SaveSearchButton";
 import { categoryIcon } from "@/lib/categoryIcons";
 import MobileActionBar from "./MobileActionBar";
 import LoadMore from "./LoadMore";
-import { BOOK_DEPARTMENT_GROUPS } from "@/lib/categoryFields";
+import { getCategoryFields } from "@/lib/categoryFields";
 
-type SearchParams = Promise<{
-  category?: string;
-  q?: string;
-  sort?: string;
-  price_min?: string;
-  price_max?: string;
-  condition?: string;
-  posted?: string;
-  department?: string;
-  page?: string;
-}>;
+type SearchParams = Promise<
+  {
+    category?: string;
+    q?: string;
+    sort?: string;
+    price_min?: string;
+    price_max?: string;
+    condition?: string;
+    posted?: string;
+    page?: string;
+    // Plus whichever key the active category's subcategory field uses
+    // (e.g. "department" for Books, "type" for Electronics) — see subField.
+  } & Record<string, string | undefined>
+>;
 
 const PAGE_SIZE = 48;
 
@@ -86,6 +89,7 @@ export default async function BrowsePage({
 }: {
   searchParams: SearchParams;
 }) {
+  const resolvedSearchParams = await searchParams;
   const {
     category,
     q,
@@ -94,9 +98,8 @@ export default async function BrowsePage({
     price_max,
     condition,
     posted,
-    department,
     page: pageRaw,
-  } = await searchParams;
+  } = resolvedSearchParams;
   // Capped so a hand-edited ?page=99999 can't ask Supabase for a million rows.
   const page = Math.min(MAX_PAGES, Math.max(1, Math.floor(Number(pageRaw)) || 1));
   const supabase = await createClient();
@@ -138,12 +141,16 @@ export default async function BrowsePage({
   if (condition) {
     query = query.eq("condition", condition);
   }
-  // Department lives in the listing's custom_fields JSON rather than its own
-  // column, so it's queried with PostgREST's ->> operator. Only meaningful
-  // inside Books, which is the one category that defines the field.
-  const departmentFilterActive = Boolean(department) && activeCategory?.slug === "books";
-  if (departmentFilterActive) {
-    query = query.eq("custom_fields->>department", department!);
+  // A category can define one "subcategory" field with grouped options
+  // (department for Books, type for Electronics, ...). It lives in the
+  // listing's custom_fields JSON rather than its own column, so it's
+  // queried with PostgREST's ->> operator, keyed by whatever field the
+  // active category defines.
+  const subField = getCategoryFields(activeCategory?.slug).find((f) => f.optionGroups);
+  const subValue = subField ? resolvedSearchParams[subField.key] : undefined;
+  const subFilterActive = Boolean(subField) && Boolean(subValue);
+  if (subField && subFilterActive) {
+    query = query.eq(`custom_fields->>${subField.key}`, subValue!);
   }
   const postedOption = POSTED_OPTIONS.find((p) => p.value === posted);
   if (postedOption) {
@@ -174,7 +181,7 @@ export default async function BrowsePage({
 
   function buildUrl(overrides: Record<string, string | undefined>) {
     const params = new URLSearchParams();
-    const merged = {
+    const merged: Record<string, string | undefined> = {
       category,
       q,
       sort,
@@ -182,7 +189,7 @@ export default async function BrowsePage({
       price_max,
       condition,
       posted,
-      department,
+      ...(subField ? { [subField.key]: subValue } : {}),
       ...overrides,
     };
     for (const [key, value] of Object.entries(merged)) {
@@ -192,15 +199,15 @@ export default async function BrowsePage({
     return `/browse${qs ? `?${qs}` : ""}`;
   }
 
-  const hasExtraFilters = condition || posted || departmentFilterActive;
+  const hasExtraFilters = condition || posted || subFilterActive;
   const hasAnyFilter = Boolean(
-    activeCategory || q || price_min || price_max || condition || posted || departmentFilterActive
+    activeCategory || q || price_min || price_max || condition || posted || subFilterActive
   );
   const mobileFilterCount = [
     Boolean(activeCategory),
     Boolean(condition),
     Boolean(posted),
-    departmentFilterActive,
+    subFilterActive,
     Boolean(price_min || price_max),
   ].filter(Boolean).length;
 
@@ -344,27 +351,27 @@ export default async function BrowsePage({
             </div>
           </div>
 
-          {/* Books is the only category with departments, so the filter only
-              exists while you're in it — otherwise it's dead UI on every
-              other category. */}
-          {activeCategory?.slug === "books" && (
+          {/* Only categories that define a grouped-option field (Books ->
+              department, Electronics -> type, ...) show this filter —
+              otherwise it'd be dead UI on every other category. */}
+          {subField && (
             <div>
               <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                Department
+                {subField.label}
               </h2>
               <div className="mt-3 space-y-1">
                 <Link
-                  href={buildUrl({ department: undefined })}
-                  aria-current={!department ? "true" : undefined}
+                  href={buildUrl({ [subField.key]: undefined })}
+                  aria-current={!subValue ? "true" : undefined}
                   className={`block rounded-md px-2 py-1 text-xs ${
-                    !department
+                    !subValue
                       ? "bg-brand-light font-semibold text-brand-dark dark:bg-brand/15 dark:text-brand"
                       : "text-slate-600 hover:text-brand dark:text-slate-400"
                   }`}
                 >
-                  All departments
+                  All {subField.label.toLowerCase()}s
                 </Link>
-                {BOOK_DEPARTMENT_GROUPS.map((group) => (
+                {subField.optionGroups!.map((group) => (
                   <div key={group.label} className="pt-1">
                     <p className="px-2 pb-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-400 dark:text-slate-500">
                       {group.label}
@@ -372,10 +379,10 @@ export default async function BrowsePage({
                     {group.options.map((opt) => (
                       <Link
                         key={opt}
-                        href={buildUrl({ department: department === opt ? undefined : opt })}
-                        aria-current={department === opt ? "true" : undefined}
+                        href={buildUrl({ [subField.key]: subValue === opt ? undefined : opt })}
+                        aria-current={subValue === opt ? "true" : undefined}
                         className={`block rounded-md px-2 py-1 text-xs ${
-                          department === opt
+                          subValue === opt
                             ? "bg-brand-light font-semibold text-brand-dark dark:bg-brand/15 dark:text-brand"
                             : "text-slate-600 hover:text-brand dark:text-slate-400"
                         }`}
@@ -557,15 +564,15 @@ export default async function BrowsePage({
                   </div>
                 </FilterGroup>
 
-                {activeCategory?.slug === "books" && (
-                  <FilterGroup label="Department">
+                {subField && (
+                  <FilterGroup label={subField.label}>
                     <select
-                      name="department"
-                      defaultValue={department ?? ""}
+                      name={subField.key}
+                      defaultValue={subValue ?? ""}
                       className="select-chevron w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-3.5 pr-9 text-sm text-slate-900 transition-colors focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
                     >
-                      <option value="">All departments</option>
-                      {BOOK_DEPARTMENT_GROUPS.map((group) => (
+                      <option value="">All {subField.label.toLowerCase()}s</option>
+                      {subField.optionGroups!.map((group) => (
                         <optgroup key={group.label} label={group.label}>
                           {group.options.map((opt) => (
                             <option key={opt} value={opt}>
@@ -669,8 +676,8 @@ export default async function BrowsePage({
                   href={buildUrl({ posted: undefined })}
                 />
               )}
-              {departmentFilterActive && (
-                <FilterChip label={department!} href={buildUrl({ department: undefined })} />
+              {subField && subFilterActive && (
+                <FilterChip label={subValue!} href={buildUrl({ [subField.key]: undefined })} />
               )}
               <Link
                 href="/browse"
