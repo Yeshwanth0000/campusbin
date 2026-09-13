@@ -70,7 +70,7 @@ export const APPLIANCE_TYPE_GROUPS: CategoryFieldOptionGroup[] = [
   },
   {
     label: "Cooling & Comfort",
-    options: ["Table / Pedestal Fan", "Water Heater / Immersion Rod", "Room Heater"],
+    options: ["Water Heater / Immersion Rod", "Room Heater"],
   },
   {
     label: "Cleaning & Personal Care",
@@ -79,6 +79,17 @@ export const APPLIANCE_TYPE_GROUPS: CategoryFieldOptionGroup[] = [
   {
     label: "Lighting",
     options: ["Study Lamp"],
+  },
+];
+
+export const COOLER_FAN_TYPE_GROUPS: CategoryFieldOptionGroup[] = [
+  {
+    label: "Coolers",
+    options: ["Air Cooler"],
+  },
+  {
+    label: "Fans",
+    options: ["Table Fan", "Pedestal Fan", "Ceiling Fan"],
   },
 ];
 
@@ -117,8 +128,9 @@ export const CATEGORY_CUSTOM_FIELDS: Record<string, CategoryFieldDef[]> = {
     { key: "brand", label: "Brand", placeholder: "e.g. Prestige, Philips" },
   ],
   coolers: [
-    { key: "brand", label: "Brand", placeholder: "e.g. Symphony, Bajaj" },
-    { key: "capacity", label: "Capacity", placeholder: "e.g. 20L, 50L, 70L" },
+    { key: "type", label: "Type", optionGroups: COOLER_FAN_TYPE_GROUPS },
+    { key: "brand", label: "Brand", placeholder: "e.g. Symphony, Bajaj, Havells" },
+    { key: "capacity", label: "Capacity", placeholder: "e.g. 20L, 50L, 70L (coolers only)" },
   ],
   calculators: [
     { key: "brand", label: "Brand", placeholder: "e.g. Casio, Texas Instruments" },
