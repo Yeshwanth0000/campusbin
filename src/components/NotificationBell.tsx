@@ -7,6 +7,9 @@ import { markNotificationRead, markAllNotificationsRead } from "@/app/actions/no
 import { describeNotification, timeAgo, type NotificationLike } from "@/lib/notificationDisplay";
 import { announceOverlayOpen, onOtherOverlayOpen } from "@/lib/overlayBus";
 import { createClient } from "@/lib/supabase/client";
+import { pushSupported, getExistingSubscription, enablePushNotifications } from "@/lib/push";
+
+type PushState = "checking" | "unsupported" | "denied" | "off" | "on";
 
 const OVERLAY_ID = "notifications";
 // The panel scrolls, but nothing trims the list otherwise -- cap it so a
@@ -25,7 +28,35 @@ export default function NotificationBell({
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState(recentNotifications);
   const [localUnreadCount, setLocalUnreadCount] = useState(unreadCount);
+  const [pushState, setPushState] = useState<PushState>("checking");
+  const [pushBusy, setPushBusy] = useState(false);
+  const [pushError, setPushError] = useState<string | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!pushSupported()) {
+      setPushState("unsupported");
+      return;
+    }
+    if (Notification.permission === "denied") {
+      setPushState("denied");
+      return;
+    }
+    getExistingSubscription().then((sub) => setPushState(sub ? "on" : "off"));
+  }, []);
+
+  async function handleEnablePush() {
+    setPushBusy(true);
+    setPushError(null);
+    const { error } = await enablePushNotifications();
+    setPushBusy(false);
+    if (error) {
+      setPushError(error);
+      setPushState(Notification.permission === "denied" ? "denied" : "off");
+    } else {
+      setPushState("on");
+    }
+  }
 
   useEffect(() => {
     if (!open) return;
@@ -123,6 +154,35 @@ export default function NotificationBell({
                   </button>
                 )}
               </div>
+
+              {pushState === "off" && (
+                <div className="flex items-center justify-between gap-3 border-b border-slate-100/70 bg-brand-light/50 px-4 py-2.5 dark:border-slate-800/70 dark:bg-brand/10">
+                  <p className="text-xs text-slate-600 dark:text-slate-400">
+                    Get notified even when CampusBin is closed.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleEnablePush}
+                    disabled={pushBusy}
+                    className="shrink-0 rounded-full bg-brand px-3 py-1 text-xs font-semibold text-white transition hover:bg-brand-dark disabled:opacity-50"
+                  >
+                    {pushBusy ? "Enabling…" : "Enable"}
+                  </button>
+                </div>
+              )}
+              {pushState === "denied" && (
+                <div className="border-b border-slate-100/70 bg-slate-50 px-4 py-2.5 dark:border-slate-800/70 dark:bg-slate-800/50">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Notifications are blocked for CampusBin. Enable them in your browser&apos;s site settings to get
+                    alerts when you&apos;re not on the page.
+                  </p>
+                </div>
+              )}
+              {pushError && (
+                <p className="border-b border-slate-100/70 px-4 py-2 text-xs text-rose-600 dark:border-slate-800/70 dark:text-rose-400">
+                  {pushError}
+                </p>
+              )}
 
               <div className="max-h-96 overflow-y-auto">
                 {notifications.length === 0 ? (
