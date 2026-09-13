@@ -63,6 +63,21 @@ export const ELECTRONICS_TYPE_GROUPS: CategoryFieldOptionGroup[] = [
   },
 ];
 
+export const APPLIANCE_TYPE_GROUPS: CategoryFieldOptionGroup[] = [
+  {
+    label: "Kitchen & Cooking",
+    options: ["Electric Kettle", "Blender"],
+  },
+  {
+    label: "Cooling & Comfort",
+    options: ["Table / Pedestal Fan", "Water Heater / Immersion Rod", "Room Heater"],
+  },
+  {
+    label: "Cleaning & Personal Care",
+    options: ["Iron / Steam Iron", "Hair Dryer / Trimmer"],
+  },
+];
+
 export const CATEGORY_CUSTOM_FIELDS: Record<string, CategoryFieldDef[]> = {
   books: [
     { key: "department", label: "Department", optionGroups: BOOK_DEPARTMENT_GROUPS },
@@ -93,7 +108,14 @@ export const CATEGORY_CUSTOM_FIELDS: Record<string, CategoryFieldDef[]> = {
     { key: "brand", label: "Brand", placeholder: "e.g. Honda, TVS" },
     { key: "model", label: "Model", placeholder: "e.g. Activa 6G" },
   ],
-  appliances: [{ key: "brand", label: "Brand", placeholder: "e.g. Prestige, Philips" }],
+  appliances: [
+    { key: "type", label: "Type", optionGroups: APPLIANCE_TYPE_GROUPS },
+    { key: "brand", label: "Brand", placeholder: "e.g. Prestige, Philips" },
+  ],
+  coolers: [
+    { key: "brand", label: "Brand", placeholder: "e.g. Symphony, Bajaj" },
+    { key: "capacity", label: "Capacity", placeholder: "e.g. 20L, 50L, 70L" },
+  ],
 };
 
 export function getCategoryFields(slug: string | undefined | null): CategoryFieldDef[] {

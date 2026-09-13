@@ -11,6 +11,7 @@ export const CATEGORY_ICONS: Record<string, string> = {
   gaming: "🎮",
   vehicles: "🛵",
   appliances: "🔌",
+  coolers: "❄️",
   other: "📦",
 };
 
