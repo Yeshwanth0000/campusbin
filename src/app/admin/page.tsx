@@ -52,6 +52,10 @@ type Overview = {
     total_views: number;
     median_price: number;
     sellers: number;
+    messagers: number;
+    active_24h: number;
+    active_7d: number;
+    never_returned: number;
     sell_through_pct: number;
     reports_open: number;
   };
@@ -239,6 +243,24 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
         )}
       </div>
 
+      <Section title="Activation" hint="Signing up is not using it — these are the numbers that matter early.">
+        <div className="space-y-4">
+          <FunnelRow label="Signed up" value={kpis.users_total} total={kpis.users_total} caption="100%" />
+          <FunnelRow
+            label="Listed something"
+            value={kpis.sellers}
+            total={kpis.users_total}
+            caption={`${pct(kpis.sellers, kpis.users_total)}% of students`}
+          />
+          <FunnelRow
+            label="Sent a message"
+            value={kpis.messagers}
+            total={kpis.users_total}
+            caption={`${pct(kpis.messagers, kpis.users_total)}% of students`}
+          />
+        </div>
+      </Section>
+
       {alerts.length > 0 && (
         <Section title="Needs attention">
           <ul className="space-y-2">
@@ -290,6 +312,19 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
         />
         <StatTile label="Active this period" value={kpis.active_in_range} sub={`of ${kpis.users_total} students`} />
       </div>
+
+      <Section title="Retention" hint="Coming back is the only real vote of confidence.">
+        <div className="grid grid-cols-3 gap-3">
+          <Compact label="Active today" value={kpis.active_24h} sub={`of ${kpis.users_total}`} />
+          <Compact label="Active this week" value={kpis.active_7d} sub={`of ${kpis.users_total}`} />
+          <Compact
+            label="Never came back"
+            value={kpis.never_returned}
+            sub="signed up, never returned"
+            tone={kpis.never_returned > 0 ? "warn" : "plain"}
+          />
+        </div>
+      </Section>
 
       {/* Trend section — the three headline metrics over the selected
           grain, real charts with tooltips rather than div-bars. */}
@@ -476,6 +511,66 @@ function Panel({ title, subtitle, children }: { title: string; subtitle?: string
       {subtitle && <p className="mb-2 text-xs text-slate-500 dark:text-slate-400">{subtitle}</p>}
       {children}
     </section>
+  );
+}
+
+function pct(part: number, whole: number) {
+  if (!whole) return 0;
+  return Math.round((part / whole) * 100);
+}
+
+function FunnelRow({
+  label,
+  value,
+  total,
+  caption,
+}: {
+  label: string;
+  value: number;
+  total: number;
+  caption: string;
+}) {
+  const width = total ? Math.max((value / total) * 100, value > 0 ? 3 : 0) : 0;
+  return (
+    <div>
+      <div className="mb-1 flex items-baseline justify-between gap-3">
+        <span className="text-sm text-slate-700 dark:text-slate-300">{label}</span>
+        <span className="text-sm font-semibold tabular-nums text-slate-900 dark:text-slate-100">
+          {value} <span className="text-xs font-normal text-slate-400 dark:text-slate-500">· {caption}</span>
+        </span>
+      </div>
+      <div className="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+        <div className="h-full rounded-full bg-brand" style={{ width: `${width}%` }} />
+      </div>
+    </div>
+  );
+}
+
+function Compact({
+  label,
+  value,
+  sub,
+  tone = "plain",
+}: {
+  label: string;
+  value: number;
+  sub?: string;
+  tone?: "plain" | "warn";
+}) {
+  return (
+    <div className="rounded-xl border border-slate-200/70 bg-white/60 p-3 dark:border-slate-800/70 dark:bg-slate-900/40">
+      <p className="text-xs text-slate-500 dark:text-slate-400">{label}</p>
+      <p
+        className={`mt-0.5 text-xl font-bold tabular-nums ${
+          tone === "warn" && value > 0
+            ? "text-amber-600 dark:text-amber-400"
+            : "text-slate-900 dark:text-slate-100"
+        }`}
+      >
+        {value.toLocaleString("en-IN")}
+      </p>
+      {sub && <p className="text-[11px] text-slate-400 dark:text-slate-500">{sub}</p>}
+    </div>
   );
 }
 
