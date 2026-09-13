@@ -6,13 +6,19 @@ import { createPortal } from "react-dom";
 import { markNotificationRead, markAllNotificationsRead } from "@/app/actions/notifications";
 import { describeNotification, timeAgo, type NotificationLike } from "@/lib/notificationDisplay";
 import { announceOverlayOpen, onOtherOverlayOpen } from "@/lib/overlayBus";
+import { createClient } from "@/lib/supabase/client";
 
 const OVERLAY_ID = "notifications";
+// The panel scrolls, but nothing trims the list otherwise -- cap it so a
+// long session sitting on one page doesn't grow this unbounded.
+const MAX_LIVE_NOTIFICATIONS = 20;
 
 export default function NotificationBell({
+  userId,
   unreadCount,
   recentNotifications,
 }: {
+  userId: string;
   unreadCount: number;
   recentNotifications: NotificationLike[];
 }) {
@@ -32,6 +38,31 @@ export default function NotificationBell({
   }, [open]);
 
   useEffect(() => onOtherOverlayOpen(OVERLAY_ID, () => setOpen(false)), []);
+
+  // Live delivery: previously the bell only reflected whatever Header last
+  // server-rendered, so a message arriving while you sat on another page
+  // went unnoticed until you navigated. RLS already scopes `notifications`
+  // to `recipient_id = auth.uid()`, and Realtime enforces that same policy,
+  // so this channel only ever receives this user's own rows.
+  useEffect(() => {
+    const supabase = createClient();
+    const channel = supabase
+      .channel(`notifications:${userId}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "notifications", filter: `recipient_id=eq.${userId}` },
+        (payload) => {
+          const row = payload.new as NotificationLike;
+          setNotifications((prev) => [row, ...prev].slice(0, MAX_LIVE_NOTIFICATIONS));
+          setLocalUnreadCount((c) => c + 1);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userId]);
 
   function handleItemClick(n: NotificationLike) {
     if (!n.read_at) {

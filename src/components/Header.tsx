@@ -83,6 +83,7 @@ export default async function Header() {
             {user && <SearchIconButton />}
             {user && (
               <NotificationBell
+                userId={user.id}
                 unreadCount={unreadNotificationCount}
                 recentNotifications={recentNotifications}
               />
