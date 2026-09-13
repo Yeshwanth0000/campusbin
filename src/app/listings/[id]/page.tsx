@@ -169,37 +169,18 @@ export default async function ListingDetailPage({
         <span className="truncate font-medium text-slate-700 dark:text-slate-300">{listing.title}</span>
       </nav>
 
+      {/* Mobile stacks these three blocks in a single column, ordered by
+          `order` so the price/action card sits right after the image
+          (a buyer shouldn't have to scroll past the description and seller
+          card just to see the price or reply) — the same card is reused as
+          the sticky lg+ sidebar via explicit grid placement, instead of
+          duplicating title/price/the primary action in a separate block. */}
       <div className="grid gap-8 lg:grid-cols-[3fr_2fr]">
-        <div className="space-y-4">
+        <div className="lg:col-start-1 lg:row-start-1">
           <ImageGallery images={listing.images} title={listing.title} />
+        </div>
 
-          {/* Mobile-only: the price/action card below stacks to the very
-              bottom of the page on a single-column layout (it's a separate
-              grid column that only sits beside this content on lg+ screens),
-              so a buyer would have to scroll past the description and seller
-              card just to see the price. Surface the essentials — title,
-              price, and the primary action — right after the image instead. */}
-          <div className="lg:hidden">
-            <h1 className="text-balance text-2xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">
-              {listing.title}
-            </h1>
-            <p className="mt-1 text-2xl font-bold text-brand">
-              {Number(listing.price) > 0
-                ? `₹${Number(listing.price).toLocaleString("en-IN")}`
-                : "Free"}
-            </p>
-            {!isOwner && listing.status === "available" && !blockedRow && (
-              <form action={messageSeller} className="mt-3">
-                <button
-                  type="submit"
-                  className="w-full rounded-md bg-brand px-4 py-2.5 text-sm font-semibold text-white shadow transition hover:bg-brand-dark"
-                >
-                  I&rsquo;m interested
-                </button>
-              </form>
-            )}
-          </div>
-
+        <div className="order-3 space-y-4 lg:order-none lg:col-start-1 lg:row-start-2">
           {listing.description && (
             <p className="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">
               {listing.description}
@@ -252,7 +233,7 @@ export default async function ListingDetailPage({
           </Link>
         </div>
 
-        <div>
+        <div className="order-2 lg:order-none lg:col-start-2 lg:row-start-1 lg:row-span-2">
           <div className="lg:sticky lg:top-24 rounded-2xl border border-slate-200/70 bg-white/70 p-5 shadow-sm backdrop-blur-sm dark:border-slate-800/70 dark:bg-slate-900/60">
             {listing.status === "sold" && (
               <span className="mb-2 inline-block rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-white dark:bg-slate-700">
