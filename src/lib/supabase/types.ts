@@ -294,6 +294,56 @@ export type Database = {
           },
         ]
       }
+      platform_expenses: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          created_by: string | null
+          currency: string
+          description: string
+          id: string
+          incurred_on: string
+          is_recurring: boolean
+          notes: string | null
+          recurring_interval: string | null
+        }
+        Insert: {
+          amount: number
+          category: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          description: string
+          id?: string
+          incurred_on?: string
+          is_recurring?: boolean
+          notes?: string | null
+          recurring_interval?: string | null
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          description?: string
+          id?: string
+          incurred_on?: string
+          is_recurring?: boolean
+          notes?: string | null
+          recurring_interval?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_expenses_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null

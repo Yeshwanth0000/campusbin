@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { TrendAreaChart, Sparkline, HBarChart, VBarChart, DonutChart, SERIES_COLORS } from "./charts";
+import ExpensesSection, { type Expense } from "./ExpensesSection";
 
 export const metadata = { title: "Dashboard — Admin — CampusBin" };
 export const dynamic = "force-dynamic";
@@ -113,6 +114,18 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
     p_granularity: granularity,
   });
   const stats = data as unknown as Overview | null;
+
+  // Business running costs -- entirely separate from marketplace data and
+  // gated by RLS to is_superadmin specifically (see the platform_expenses
+  // policies), so a future college admin never sees this even by mistake.
+  const expenses = profile.is_superadmin
+    ? (
+        await supabase
+          .from("platform_expenses")
+          .select("id, description, category, amount, currency, incurred_on, is_recurring, recurring_interval, notes")
+          .order("incurred_on", { ascending: false })
+      ).data ?? []
+    : [];
 
   if (error || !stats) {
     return (
@@ -473,6 +486,12 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
           <Empty>No views recorded yet.</Empty>
         )}
       </Section>
+
+      {profile.is_superadmin && (
+        <Section title="Expenditure" hint="What this project actually costs to run — visible only to you.">
+          <ExpensesSection initialExpenses={expenses as Expense[]} />
+        </Section>
+      )}
     </div>
   );
 }
