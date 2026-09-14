@@ -39,6 +39,9 @@ export const metadata: Metadata = {
     title: "CampusBin — Your Campus Marketplace",
     description: "Buy and sell with verified students on your own campus.",
   },
+  verification: {
+    google: "ocCxD2sreL6eHxLCqbma3-WGDugkUfj3de3kNryLVt8",
+  },
 };
 
 export const viewport: Viewport = {
