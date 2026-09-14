@@ -5,10 +5,39 @@
 // small enough, and non-image files, rather than risking degrading them.
 const SKIP_BELOW_BYTES = 300 * 1024;
 
+// iPhone cameras save photos as HEIC by default. No browser but Safari can
+// decode it (createImageBitmap below throws), and the storage buckets don't
+// accept the mime type either — so without this, every iPhone user's first
+// upload attempt fails. Some pickers report an empty/generic mime type for
+// HEIC, so the extension is checked too.
+function isHeic(file: File): boolean {
+  return (
+    file.type === "image/heic" ||
+    file.type === "image/heif" ||
+    /\.hei[cf]$/i.test(file.name)
+  );
+}
+
 export async function compressImage(
   file: File,
   { maxDimension, quality = 0.82 }: { maxDimension: number; quality?: number }
 ): Promise<File> {
+  if (isHeic(file)) {
+    try {
+      const heic2any = (await import("heic2any")).default;
+      const converted = await heic2any({ blob: file, toType: "image/jpeg", quality });
+      const blob = Array.isArray(converted) ? converted[0] : converted;
+      file = new File([blob], file.name.replace(/\.hei[cf]$/i, "") + ".jpg", {
+        type: "image/jpeg",
+      });
+    } catch {
+      // Conversion failed (corrupt file, unsupported HEIC variant) — fall
+      // through and let the upload fail with the normal unsupported-format
+      // error rather than silently dropping the photo.
+      return file;
+    }
+  }
+
   if (!file.type.startsWith("image/") || file.type === "image/gif" || file.size < SKIP_BELOW_BYTES) {
     return file;
   }
