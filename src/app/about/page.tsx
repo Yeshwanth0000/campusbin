@@ -1,7 +1,5 @@
-// UPI ID for the optional "support this project" link below — swap in the
-// real one and the button below lights up. Left unset on purpose rather than
-// shipping a placeholder that looks like a real payment target.
-const SUPPORT_UPI_ID: string | null = null;
+// UPI ID for the optional "support this project" link below.
+const SUPPORT_UPI_ID: string | null = "9652682587@axl";
 
 export const metadata = { title: "About — CampusBin" };
 
