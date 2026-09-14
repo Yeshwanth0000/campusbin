@@ -592,6 +592,14 @@ export type Database = {
         Args: { p_listing_id: string }
         Returns: number
       }
+      get_public_listing_preview: {
+        Args: { p_listing_id: string }
+        Returns: {
+          image: string
+          price: number
+          title: string
+        }[]
+      }
       increment_listing_view: {
         Args: { p_listing_id: string }
         Returns: undefined

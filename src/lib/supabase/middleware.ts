@@ -37,7 +37,13 @@ export async function updateSession(request: NextRequest, requestHeaders: Header
     request.nextUrl.pathname.startsWith("/auth") ||
     request.nextUrl.pathname.startsWith("/terms") ||
     request.nextUrl.pathname.startsWith("/safety") ||
-    request.nextUrl.pathname.startsWith("/about");
+    request.nextUrl.pathname.startsWith("/about") ||
+    // A shared listing link needs to reach the page itself so link-preview
+    // bots (and a friend who taps the link before logging in) get a real
+    // preview instead of a bare redirect. The page renders a title/price/
+    // photo teaser for anonymous visitors — everything else about the
+    // listing still requires an account, same as before.
+    request.nextUrl.pathname.startsWith("/listings/");
   const isPublicAsset = request.nextUrl.pathname.startsWith("/_next");
 
   if (!user && !isAuthRoute && !isPublicAsset && request.nextUrl.pathname !== "/") {

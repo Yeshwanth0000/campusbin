@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
@@ -23,25 +24,34 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const supabase = await createClient();
-  // Listings are scoped to the viewer's own college via RLS, so an
-  // unauthenticated request (e.g. a link-preview bot with no session) can
-  // never see real listing data here — that's correct for a college-private
-  // marketplace, not a bug, so this just falls back to the site defaults
-  // rather than trying to work around it. This mainly makes the browser tab
-  // title useful for a signed-in viewer with several listings open.
-  const { data: listing } = await supabase
-    .from("listings")
-    .select("title, description")
-    .eq("id", id)
+  // Listings are scoped to the viewer's own college via RLS, so a direct
+  // table select here would see nothing for an unauthenticated link-preview
+  // bot (WhatsApp, etc.) — every shared listing link fell back to generic
+  // site branding instead of showing the item. get_public_listing_preview
+  // is a narrow, explicit exception: it hands back title/price/first photo
+  // only (never the description, seller, or meetup spot) so a shared link
+  // gets a real preview card without exposing anything else about the
+  // listing to whoever ends up with the link.
+  const { data: preview } = await supabase
+    .rpc("get_public_listing_preview", { p_listing_id: id })
     .maybeSingle();
 
-  if (!listing) {
+  if (!preview?.title) {
     return { title: "CampusBin — Your Campus Marketplace" };
   }
 
+  const title = `${preview.title} — CampusBin`;
+  const description =
+    Number(preview.price) > 0
+      ? `₹${Number(preview.price).toLocaleString("en-IN")} on CampusBin — buy and sell with verified students on your own campus.`
+      : "Free on CampusBin — buy and sell with verified students on your own campus.";
+  const images = preview.image ? [preview.image] : undefined;
+
   return {
-    title: `${listing.title} — CampusBin`,
-    description: listing.description?.slice(0, 160) || undefined,
+    title,
+    description,
+    openGraph: { title, description, images },
+    twitter: { card: "summary_large_image", title, description, images },
   };
 }
 
@@ -53,27 +63,66 @@ export default async function ListingDetailPage({
   const { id } = await params;
   const supabase = await createClient();
 
-  // listing only needs `id` (already in hand) and doesn't need `user`, so it
-  // starts alongside getUser() instead of waiting on it. Middleware already
-  // redirects unauthenticated visitors before this component ever runs, so
-  // the listing fetch is never truly wasted in practice.
-  const [
-    {
-      data: { user },
-    },
-    { data: listing },
-  ] = await Promise.all([
-    supabase.auth.getUser(),
-    supabase
-      .from("listings")
-      .select(
-        "id, title, description, price, condition, images, meetup_spot, status, created_at, seller_id, category_id, view_count, custom_fields, show_phone, categories(name, slug), profiles(full_name, hostel_or_branch, created_at, avatar_url, phone_number)"
-      )
-      .eq("id", id)
-      .single(),
-  ]);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!user) redirect("/login");
+  // An anonymous visitor is either a link-preview bot or a real person who
+  // tapped a shared link before logging in. RLS already hides everything
+  // about the listing from them except what get_public_listing_preview
+  // deliberately exposes (title/price/first photo, nothing else) — so this
+  // teaser is the full extent of what there is to show without an account,
+  // rather than bouncing them to a bare login form with zero context.
+  if (!user) {
+    const { data: preview } = await supabase
+      .rpc("get_public_listing_preview", { p_listing_id: id })
+      .maybeSingle();
+    if (!preview?.title) notFound();
+
+    return (
+      <div className="mx-auto flex min-h-[60vh] w-full max-w-sm flex-col items-center px-4 py-12 text-center">
+        {preview.image && (
+          <div className="relative mb-6 aspect-square w-full overflow-hidden rounded-2xl bg-slate-100 dark:bg-slate-800">
+            <Image src={preview.image} alt={preview.title} fill sizes="384px" className="object-cover" />
+          </div>
+        )}
+        <h1 className="text-balance text-2xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">
+          {preview.title}
+        </h1>
+        <p className="mt-2 text-2xl font-bold text-brand">
+          {Number(preview.price) > 0
+            ? `₹${Number(preview.price).toLocaleString("en-IN")}`
+            : "Free"}
+        </p>
+        <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
+          Log in with your college email to see full details, more photos, and message the seller.
+        </p>
+        <div className="mt-6 flex w-full flex-col gap-2">
+          <Link
+            href="/login"
+            className="rounded-md bg-brand px-4 py-2.5 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5 hover:bg-brand-dark hover:shadow-md"
+          >
+            Log in
+          </Link>
+          <Link
+            href="/signup"
+            className="rounded-md border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+          >
+            New here? Create an account
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const { data: listing } = await supabase
+    .from("listings")
+    .select(
+      "id, title, description, price, condition, images, meetup_spot, status, created_at, seller_id, category_id, view_count, custom_fields, show_phone, categories(name, slug), profiles(full_name, hostel_or_branch, created_at, avatar_url, phone_number)"
+    )
+    .eq("id", id)
+    .single();
+
   if (!listing) notFound();
 
   const isOwner = listing.seller_id === user.id;
