@@ -7,6 +7,7 @@ import { markAsSold, deleteListing, relistListing } from "@/app/actions/listings
 import ImageGallery from "@/components/ImageGallery";
 import ListingCard from "@/components/ListingCard";
 import SaveButton from "@/components/SaveButton";
+import ShareButton from "@/components/ShareButton";
 import SafetyMenu from "@/components/SafetyMenu";
 import ViewTracker from "@/components/ViewTracker";
 import RelistButton from "@/components/RelistButton";
@@ -258,16 +259,19 @@ export default async function ListingDetailPage({
               <h1 className="text-balance text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100 sm:text-4xl">
                 {listing.title}
               </h1>
-              {!isOwner && (
-                <div className="flex shrink-0 items-center gap-1">
-                  <SaveButton listingId={id} initialSaved={!!savedRow} />
-                  <SafetyMenu
-                    userId={listing.seller_id}
-                    listingId={id}
-                    initialBlocked={blockedRow}
-                  />
-                </div>
-              )}
+              <div className="flex shrink-0 items-center gap-1">
+                <ShareButton title={listing.title} />
+                {!isOwner && (
+                  <>
+                    <SaveButton listingId={id} initialSaved={!!savedRow} />
+                    <SafetyMenu
+                      userId={listing.seller_id}
+                      listingId={id}
+                      initialBlocked={blockedRow}
+                    />
+                  </>
+                )}
+              </div>
             </div>
             <p className="mt-2 text-3xl font-bold text-brand">
               {Number(listing.price) > 0
