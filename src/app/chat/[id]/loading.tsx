@@ -4,7 +4,7 @@ const BUBBLE_WIDTHS = ["w-40", "w-56", "w-32", "w-48", "w-24"];
 
 export default function ChatThreadLoading() {
   return (
-    <div className="mx-auto flex h-[calc(100vh-63px)] w-full max-w-none animate-skeleton-in flex-col px-3 py-3 sm:h-[calc(100vh-126px)] sm:max-w-[min(94vw,72rem)] sm:px-4 sm:py-4 lg:h-[calc(100vh-64px)]">
+    <div className="mx-auto flex h-[calc(100dvh-63px)] w-full max-w-none animate-skeleton-in flex-col px-3 py-3 sm:h-[calc(100dvh-126px)] sm:max-w-[min(94vw,72rem)] sm:px-4 sm:py-4 lg:h-[calc(100dvh-64px)]">
       <div className="flex items-center gap-3 border-b border-slate-200 pb-3 dark:border-slate-800">
         <Skeleton className="h-10 w-10 shrink-0 rounded-full" />
         <div className="space-y-2">
