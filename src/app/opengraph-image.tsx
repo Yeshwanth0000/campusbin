@@ -19,22 +19,44 @@ export default function Image() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
+          position: "relative",
           padding: "80px",
-          background: "linear-gradient(135deg, #1e1b4b 0%, #312e81 45%, #4f46e5 100%)",
-          color: "white",
+          background:
+            "radial-gradient(circle at 90% -10%, rgba(109,107,245,0.5) 0%, rgba(109,107,245,0) 55%), radial-gradient(circle at -10% 115%, rgba(52,211,153,0.38) 0%, rgba(52,211,153,0) 55%), linear-gradient(160deg, #100e21 0%, #060611 65%)",
+          color: "#f4f3fa",
           fontFamily: "sans-serif",
         }}
       >
-        <div style={{ display: "flex", fontSize: 34, opacity: 0.75, letterSpacing: "0.06em" }}>
-          CAMPUSBIN
+        <div style={{ display: "flex", alignItems: "center", marginBottom: 46 }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 56,
+              height: 56,
+              borderRadius: 14,
+              marginRight: 18,
+              background: "linear-gradient(135deg, #6d6bf5, #34d399)",
+              color: "#060611",
+              fontSize: 24,
+              fontWeight: 800,
+              letterSpacing: -1,
+            }}
+          >
+            CB
+          </div>
+          <div style={{ display: "flex", fontSize: 30, fontWeight: 600, letterSpacing: "0.02em" }}>
+            CampusBin
+          </div>
         </div>
+
         <div
           style={{
             display: "flex",
-            fontSize: 96,
-            fontWeight: 700,
-            lineHeight: 1.05,
-            marginTop: 28,
+            fontSize: 92,
+            fontWeight: 800,
+            lineHeight: 1.04,
             letterSpacing: "-0.02em",
           }}
         >
@@ -43,17 +65,37 @@ export default function Image() {
         <div
           style={{
             display: "flex",
-            fontSize: 96,
-            fontWeight: 700,
-            lineHeight: 1.05,
-            color: "#a5b4fc",
+            fontSize: 92,
+            fontWeight: 800,
+            lineHeight: 1.04,
             letterSpacing: "-0.02em",
+            marginBottom: 34,
+            backgroundImage: "linear-gradient(95deg, #6d6bf5 10%, #34d399 90%)",
+            backgroundClip: "text",
+            color: "transparent",
           }}
         >
           campus to campus.
         </div>
-        <div style={{ display: "flex", fontSize: 36, opacity: 0.8, marginTop: 36 }}>
+
+        <div style={{ display: "flex", fontSize: 32, color: "#9997b3" }}>
           Verified by your college email. Private to your campus.
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            position: "absolute",
+            right: 80,
+            bottom: 64,
+            fontSize: 26,
+            fontWeight: 600,
+            letterSpacing: "0.04em",
+            color: "#f4f3fa",
+            opacity: 0.85,
+          }}
+        >
+          campusbin.in
         </div>
       </div>
     ),
