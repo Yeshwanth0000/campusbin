@@ -174,8 +174,13 @@ export default async function ListingDetailPage({
           (a buyer shouldn't have to scroll past the description and seller
           card just to see the price or reply) — the same card is reused as
           the sticky lg+ sidebar via explicit grid placement, instead of
-          duplicating title/price/the primary action in a separate block. */}
-      <div className="grid gap-8 lg:grid-cols-[3fr_2fr]">
+          duplicating title/price/the primary action in a separate block.
+          The image column used to be a 3fr share of the page's own
+          96rem max-width, so on a wide monitor a plain aspect-square photo
+          rendered 900px+ tall — capping it to a fixed 34rem keeps photos a
+          reasonable size and lets the price/action column use the space
+          that opens up instead of sitting mostly empty beside a giant photo. */}
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,34rem)_1fr]">
         <div className="lg:col-start-1 lg:row-start-1">
           <ImageGallery images={listing.images} title={listing.title} />
         </div>
