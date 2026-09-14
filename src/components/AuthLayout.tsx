@@ -1,4 +1,5 @@
 import GradientMesh from "./GradientMesh";
+import Logo from "./Logo";
 
 // The panel is the same brand furniture on every auth page, so the steps live
 // here rather than being passed in. All four pages used to declare their own
@@ -19,9 +20,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             or dark mode. */}
         <div className="relative hidden flex-col justify-center overflow-hidden bg-slate-950 p-10 sm:flex">
           <GradientMesh />
-          <div className="relative flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 text-2xl backdrop-blur-sm">
-            🎓
-          </div>
+          <Logo size={48} className="relative rounded-xl" />
           <h2 className="relative mt-5 text-xl font-bold text-white">CampusBin</h2>
           <p className="relative mt-2 text-sm text-slate-300">
             The private marketplace for your own campus — buy, sell, and trade

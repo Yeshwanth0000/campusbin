@@ -7,6 +7,7 @@ import ThemeToggle from "./ThemeToggle";
 import BottomNav from "./BottomNav";
 import NotificationBell from "./NotificationBell";
 import FloatingHeaderShell from "./FloatingHeaderShell";
+import Logo from "./Logo";
 import type { NotificationLike } from "@/lib/notificationDisplay";
 
 export default async function Header() {
@@ -64,7 +65,8 @@ export default async function Header() {
     <>
       <FloatingHeaderShell>
         <div className="flex w-full items-center gap-3 px-3 py-2.5 sm:gap-4 sm:px-4 sm:py-3">
-          <Link href="/" className="flex shrink-0 items-baseline gap-2">
+          <Link href="/" className="flex shrink-0 items-center gap-2">
+            <Logo size={28} className="rounded-[6px]" />
             <span className="text-xl font-bold text-brand">CampusBin</span>
             {collegeName && (
               <span className="hidden text-xs font-medium text-slate-500 dark:text-slate-400 md:inline">

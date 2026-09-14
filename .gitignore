@@ -40,8 +40,12 @@ yarn-error.log*
 .claude/scheduled_tasks.lock
 
 # local scratch exports — can contain real user data, never commit
+campusbin-data-*.json
 campuscircle-data-*.json
 dev-log-report.html
+
+# scratch working files, not app source
+/scratch/
 
 # typescript
 *.tsbuildinfo

@@ -13,7 +13,7 @@ export default function AppleIcon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#4f46e5",
+          background: "linear-gradient(135deg, #4f46e5, #10b981)",
           fontSize: 84,
           fontWeight: 800,
           color: "white",
@@ -21,7 +21,7 @@ export default function AppleIcon() {
           letterSpacing: -2,
         }}
       >
-        CC
+        CB
       </div>
     ),
     { ...size }

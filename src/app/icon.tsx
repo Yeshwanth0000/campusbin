@@ -1,9 +1,9 @@
 import { ImageResponse } from "next/og";
 
-export const runtime = "edge";
+export const size = { width: 32, height: 32 };
+export const contentType = "image/png";
 
-export async function GET() {
-  const size = 192;
+export default function Icon() {
   return new ImageResponse(
     (
       <div
@@ -14,17 +14,17 @@ export async function GET() {
           alignItems: "center",
           justifyContent: "center",
           background: "linear-gradient(135deg, #4f46e5, #10b981)",
-          borderRadius: size * 0.22,
-          fontSize: size * 0.46,
+          borderRadius: 7,
+          fontSize: 15,
           fontWeight: 800,
           color: "white",
           fontFamily: "sans-serif",
-          letterSpacing: -2,
+          letterSpacing: -0.6,
         }}
       >
         CB
       </div>
     ),
-    { width: size, height: size }
+    { ...size }
   );
 }

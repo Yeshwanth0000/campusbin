@@ -13,7 +13,7 @@ export async function GET() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#4f46e5",
+          background: "linear-gradient(135deg, #4f46e5, #10b981)",
           borderRadius: size * 0.22,
           fontSize: size * 0.46,
           fontWeight: 800,
@@ -22,7 +22,7 @@ export async function GET() {
           letterSpacing: -6,
         }}
       >
-        CC
+        CB
       </div>
     ),
     { width: size, height: size }
