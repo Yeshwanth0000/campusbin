@@ -36,7 +36,8 @@ export async function updateSession(request: NextRequest, requestHeaders: Header
     request.nextUrl.pathname.startsWith("/forgot-password") ||
     request.nextUrl.pathname.startsWith("/auth") ||
     request.nextUrl.pathname.startsWith("/terms") ||
-    request.nextUrl.pathname.startsWith("/safety");
+    request.nextUrl.pathname.startsWith("/safety") ||
+    request.nextUrl.pathname.startsWith("/about");
   const isPublicAsset = request.nextUrl.pathname.startsWith("/_next");
 
   if (!user && !isAuthRoute && !isPublicAsset && request.nextUrl.pathname !== "/") {
