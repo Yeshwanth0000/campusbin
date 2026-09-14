@@ -26,6 +26,7 @@ export default function SellerQuickActions({
   }, [open]);
 
   function handleMarkSold(e: React.MouseEvent) {
+    e.preventDefault();
     e.stopPropagation();
     setOpen(false);
     startTransition(async () => {
@@ -35,6 +36,7 @@ export default function SellerQuickActions({
   }
 
   function handleRelist(e: React.MouseEvent) {
+    e.preventDefault();
     e.stopPropagation();
     setOpen(false);
     startTransition(async () => {
@@ -45,6 +47,7 @@ export default function SellerQuickActions({
   }
 
   function handleDelete(e: React.MouseEvent) {
+    e.preventDefault();
     e.stopPropagation();
     if (!window.confirm("Delete this listing? This can't be undone — its photos and chat history will be gone.")) {
       setOpen(false);
@@ -58,13 +61,19 @@ export default function SellerQuickActions({
   }
 
   return (
-    // stopPropagation on the whole wrapper keeps every click here (including
-    // the Edit link) from bubbling up into the card's own <Link> to the
-    // listing detail page.
+    // Every handler here also calls preventDefault/stopPropagation directly
+    // (not just on this wrapper) — a nested <button>/<a> inside the card's
+    // own <Link> needs the click stopped at its own source, same as the
+    // existing SaveButton/InterestedButton pattern, or the click falls
+    // through to the anchor and navigates to the listing page instead.
     <div ref={menuRef} className="relative" onClick={(e) => e.stopPropagation()}>
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setOpen((o) => !o);
+        }}
         disabled={isPending}
         aria-label="Listing actions"
         aria-expanded={open}
@@ -92,6 +101,7 @@ export default function SellerQuickActions({
               <Link
                 href={`/listings/${listingId}/edit`}
                 role="menuitem"
+                onClick={(e) => e.stopPropagation()}
                 className="block px-3 py-1.5 text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
               >
                 Edit
