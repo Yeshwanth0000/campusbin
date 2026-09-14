@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import ListingCard from "@/components/ListingCard";
+import SellerQuickActions from "@/components/SellerQuickActions";
 
 type Listing = {
   id: string;
@@ -65,6 +66,7 @@ export default function MyListingsGrid({ listings }: { listings: Listing[] }) {
               categoryName={listing.categories?.name}
               hideSave
               hideInterested
+              ownerActions={<SellerQuickActions listingId={listing.id} status={listing.status} />}
             />
           ))}
         </div>

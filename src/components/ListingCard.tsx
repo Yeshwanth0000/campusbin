@@ -21,6 +21,10 @@ type ListingCardProps = {
    *  these as the LCP element and asking for eager loading in the dev logs;
    *  without it the largest visible image waits for lazy-load intersection. */
   priority?: boolean;
+  /** Seller-only management menu (edit/mark sold/relist/delete), rendered in
+   *  the same corner as save/interested — the two are never shown together,
+   *  since a seller never sees those buyer-facing actions on their own card. */
+  ownerActions?: React.ReactNode;
 };
 
 export default function ListingCard({
@@ -37,6 +41,7 @@ export default function ListingCard({
   sellerId,
   hideInterested = false,
   priority = false,
+  ownerActions,
 }: ListingCardProps) {
   const showInterested = !hideInterested && sellerId && status === "available";
   const isNew =
@@ -81,11 +86,15 @@ export default function ListingCard({
           )}
         </div>
 
-        {(!hideSave || showInterested) && (
-          <div className="absolute right-2 top-2 flex flex-col items-end gap-1.5 opacity-0 transition-opacity group-hover:opacity-100 sm:opacity-100">
-            {!hideSave && <SaveButton listingId={id} initialSaved={saved} />}
-            {showInterested && <InterestedButton listingId={id} sellerId={sellerId!} />}
-          </div>
+        {ownerActions ? (
+          <div className="absolute right-2 top-2">{ownerActions}</div>
+        ) : (
+          (!hideSave || showInterested) && (
+            <div className="absolute right-2 top-2 flex flex-col items-end gap-1.5 opacity-0 transition-opacity group-hover:opacity-100 sm:opacity-100">
+              {!hideSave && <SaveButton listingId={id} initialSaved={saved} />}
+              {showInterested && <InterestedButton listingId={id} sellerId={sellerId!} />}
+            </div>
+          )
         )}
       </div>
 
