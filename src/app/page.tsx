@@ -204,6 +204,9 @@ export default async function HomePage() {
                 <li>
                   <Link href="/terms" className="hover:text-brand">Terms &amp; conditions</Link>
                 </li>
+                <li>
+                  <Link href="/about" className="hover:text-brand">About CampusBin</Link>
+                </li>
               </ul>
             </div>
           </div>

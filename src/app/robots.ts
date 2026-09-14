@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
-      allow: ["/", "/login", "/signup", "/terms", "/safety"],
+      allow: ["/", "/login", "/signup", "/terms", "/safety", "/about"],
       // Everything else is college-private and already behind the auth guard;
       // listing it here keeps crawlers from hammering redirects to /login.
       disallow: [
