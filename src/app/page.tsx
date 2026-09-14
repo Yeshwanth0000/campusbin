@@ -218,7 +218,13 @@ export default async function HomePage() {
               college or university. Trade safely: meet in public campus
               locations and never share financial information.
             </p>
-            <p className="mt-2">© {new Date().getFullYear()} CampusBin.</p>
+            <p className="mt-2">
+              © {new Date().getFullYear()} CampusBin. Enjoy using it?{" "}
+              <Link href="/about#support" className="font-medium text-brand hover:text-brand-dark">
+                Support the project
+              </Link>
+              .
+            </p>
           </div>
         </div>
       </footer>

@@ -64,7 +64,10 @@ export default function AboutPage() {
           </p>
         </section>
 
-        <section className="rounded-2xl border border-slate-200/70 bg-slate-50/80 p-5 shadow-sm backdrop-blur-sm dark:border-slate-800/70 dark:bg-slate-800/40">
+        <section
+          id="support"
+          className="scroll-mt-20 rounded-2xl border border-slate-200/70 bg-slate-50/80 p-5 shadow-sm backdrop-blur-sm dark:border-slate-800/70 dark:bg-slate-800/40"
+        >
           <h2 className="flex items-center gap-2.5 font-semibold text-slate-900 dark:text-slate-100">
             <span aria-hidden className="text-lg">
               ☕
