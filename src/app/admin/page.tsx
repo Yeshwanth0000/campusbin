@@ -59,6 +59,7 @@ type Overview = {
     never_returned: number;
     sell_through_pct: number;
     reports_open: number;
+    storage_bytes: number;
   };
   series: { signups: SeriesPoint[]; listings: SeriesPoint[]; messages: SeriesPoint[] };
   by_category: CategoryPoint[];
@@ -81,8 +82,7 @@ const GRANULARITIES = [
 const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 // 1 GB of Supabase storage is the ceiling on the free plan, and photos are
-// what fills it. Listing photos compress to roughly 300 KB at 1600px/q0.82.
-const EST_KB_PER_IMAGE = 300;
+// what fills it.
 const STORAGE_LIMIT_MB = 1024;
 
 type SearchParams = Promise<{ granularity?: string; college?: string }>;
@@ -460,7 +460,7 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
       </div>
 
       <Section title="Capacity" hint="Supabase free plan gives 1 GB of file storage — photos are what fill it.">
-        <StorageGauge listingsTotal={kpis.listings_total} />
+        <StorageGauge storageBytes={kpis.storage_bytes} />
       </Section>
 
       <Section title="Most viewed">
@@ -689,19 +689,16 @@ function formatHour(hour: number) {
   return `${h} ${suffix}`;
 }
 
-function StorageGauge({ listingsTotal }: { listingsTotal: number }) {
-  // Estimate from total listings rather than a stats field we didn't carry
-  // over — good enough for a capacity glance, not a billing figure.
-  const estImages = listingsTotal * 2;
-  const storageMb = (estImages * EST_KB_PER_IMAGE) / 1024;
+function StorageGauge({ storageBytes }: { storageBytes: number }) {
+  const storageMb = storageBytes / (1024 * 1024);
   const storagePct = Math.min(100, (storageMb / STORAGE_LIMIT_MB) * 100);
   return (
     <div>
       <div className="flex items-baseline justify-between gap-3">
         <p className="text-sm text-slate-700 dark:text-slate-300">
-          ~{storageMb.toFixed(0)} MB of {STORAGE_LIMIT_MB} MB
+          {storageMb.toFixed(1)} MB of {STORAGE_LIMIT_MB} MB
         </p>
-        <p className="text-xs text-slate-500 dark:text-slate-400">estimated from listing counts</p>
+        <p className="text-xs text-slate-500 dark:text-slate-400">actual file storage used</p>
       </div>
       <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
         <div
