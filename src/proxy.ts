@@ -44,6 +44,13 @@ export const config = {
     // JSON and the install prompt never became available — the icons it
     // references were fine, since .png already sat behind this same
     // exclusion. robots/sitemap are listed for the same reason.
-    "/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|opengraph-image|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    //
+    // icon/apple-icon are the dynamic favicon routes (icon.tsx, apple-icon.tsx)
+    // — they have no file extension in their URL, so they didn't match the
+    // .png/.svg exclusion above and were 307'd to /login same as the manifest
+    // was. Google's crawler (and every logged-out browser tab) hit that
+    // redirect instead of the real icon, which is why search results showed
+    // a fallback icon instead of the CB logo.
+    "/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|opengraph-image|robots.txt|sitemap.xml|icon|apple-icon|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
