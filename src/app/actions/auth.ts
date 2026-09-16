@@ -38,7 +38,7 @@ function friendlyAuthError(message: string): string {
   // the generic "email" branch below, which would otherwise swallow it and
   // wrongly tell the student their address is malformed.
   if (m.includes("error sending") || m.includes("sending confirmation") || m.includes("smtp")) {
-    return "We couldn't send your confirmation email just now — that's our problem, not your details. Your account is saved, so try signing up again in a few minutes and it should come through.";
+    return "We couldn't send your confirmation email just now — that's our problem, not your details. Your account is saved. This is usually a temporary hiccup (try again in a few minutes), but if we've hit our daily email limit it won't clear until tomorrow — message us if it still isn't working after that.";
   }
   // The per-user cooldown between emails (60s by default). Supabase phrases
   // this as "For security purposes, you can only request this after N
