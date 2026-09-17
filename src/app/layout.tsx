@@ -51,6 +51,31 @@ export const viewport: Viewport = {
   ],
 };
 
+// Tells Google what CampusBin actually is (a specific student marketplace
+// entity), separate from ranking for "campusbin" the search term — this is
+// the same signal that helps disambiguate against generic "campus bin"
+// waste-container results in things like AI Overviews. No SearchAction here:
+// /browse is behind auth and disallowed in robots.txt, so advertising a
+// public sitelinks search box would point anonymous visitors at a page they
+// can't actually use.
+const STRUCTURED_DATA = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      name: "CampusBin",
+      url: SITE_URL,
+      logo: `${SITE_URL}/icon`,
+      description: "A private, verified-student marketplace for buying and selling within your own college campus.",
+    },
+    {
+      "@type": "WebSite",
+      name: "CampusBin",
+      url: SITE_URL,
+    },
+  ],
+};
+
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const nonce = (await headers()).get("x-nonce") ?? undefined;
   return (
@@ -60,6 +85,11 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
+        <script
+          type="application/ld+json"
+          nonce={nonce}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(STRUCTURED_DATA) }}
+        />
         <ThemeInitScript nonce={nonce} />
         <AmbientBackground />
         <a
