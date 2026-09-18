@@ -8,7 +8,6 @@ import SaveSearchButton from "@/components/SaveSearchButton";
 import { categoryIcon } from "@/lib/categoryIcons";
 import MobileActionBar from "./MobileActionBar";
 import LoadMore from "./LoadMore";
-import CollegeSwitcher from "./CollegeSwitcher";
 import { getCategoryFields } from "@/lib/categoryFields";
 
 type SearchParams = Promise<
@@ -122,16 +121,14 @@ export default async function BrowsePage({
   const blockedIds = new Set(blockedRows?.map((r) => r.blocked_id));
 
   // Superadmins can drop into any college's marketplace (or all of them at
-  // once) via the dropdown below — everyone else stays scoped to their own
-  // college by RLS ("listings viewable within same college"), same as
-  // always. Without an explicit filter here, a superadmin would see every
-  // college's listings by default, since the RLS policy that grants them
-  // full access is additive to (not a replacement for) the own-college one.
+  // once) via the switcher in the header — everyone else stays scoped to
+  // their own college by RLS ("listings viewable within same college"),
+  // same as always. Without an explicit filter here, a superadmin would see
+  // every college's listings by default, since the RLS policy that grants
+  // them full access is additive to (not a replacement for) the own-college
+  // one.
   const isSuperadmin = profile?.is_superadmin ?? false;
   const collegeFilter = isSuperadmin ? (collegeRaw || profile?.college_id || null) : null;
-  const { data: allColleges } = isSuperadmin
-    ? await supabase.from("colleges").select("id, name").order("name")
-    : { data: null };
 
   let query = supabase
     .from("listings")
@@ -242,10 +239,6 @@ export default async function BrowsePage({
           the sidebar arrives and the action bar's Category sheet steps down.
           Below that the sheet covers the same ground, and these two were
           spending most of the first screen on navigation. */}
-      {isSuperadmin && allColleges && (
-        <CollegeSwitcher colleges={allColleges} current={collegeFilter ?? "all"} />
-      )}
-
       <nav className="mb-4 hidden items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 lg:flex">
         <Link href="/browse" className="hover:text-brand">
           Home

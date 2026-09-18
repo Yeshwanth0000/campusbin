@@ -8,6 +8,7 @@ import BottomNav from "./BottomNav";
 import NotificationBell from "./NotificationBell";
 import FloatingHeaderShell from "./FloatingHeaderShell";
 import Logo from "./Logo";
+import CollegeSwitcher from "./CollegeSwitcher";
 import type { NotificationLike } from "@/lib/notificationDisplay";
 
 export default async function Header() {
@@ -24,13 +25,19 @@ export default async function Header() {
 
   let collegeName: string | null = null;
   let isAdmin = false;
+  let isSuperadmin = false;
+  let allColleges: { id: string; name: string }[] | null = null;
   let hasUnread = false;
   let unreadNotificationCount = 0;
   let recentNotifications: NotificationLike[] = [];
   if (user) {
-    const [{ data: profile }, { count }, { count: notifCount }, { data: notifRows }] =
+    const [{ data: profile }, { count }, { count: notifCount }, { data: notifRows }, { data: collegesData }] =
       await Promise.all([
-        supabase.from("profiles").select("is_admin, colleges(name)").eq("id", user.id).single(),
+        supabase
+          .from("profiles")
+          .select("is_admin, is_superadmin, colleges(name)")
+          .eq("id", user.id)
+          .single(),
         supabase
           .from("messages")
           .select("id, conversations!inner(buyer_id, seller_id)", {
@@ -53,9 +60,14 @@ export default async function Header() {
           .eq("recipient_id", user.id)
           .order("created_at", { ascending: false })
           .limit(6),
+        // Small, sitewide-static table — cheap enough to fetch unconditionally
+        // rather than adding a second round-trip once we know is_superadmin.
+        supabase.from("colleges").select("id, name").order("name"),
       ]);
     collegeName = profile?.colleges?.name ?? null;
     isAdmin = profile?.is_admin ?? false;
+    isSuperadmin = profile?.is_superadmin ?? false;
+    allColleges = collegesData ?? null;
     hasUnread = (count ?? 0) > 0;
     unreadNotificationCount = notifCount ?? 0;
     recentNotifications = notifRows ?? [];
@@ -68,12 +80,19 @@ export default async function Header() {
           <Link href="/" className="flex shrink-0 items-center gap-2">
             <Logo size={28} className="rounded-[6px]" />
             <span className="text-xl font-bold text-brand">CampusBin</span>
-            {collegeName && (
+            {collegeName && !isSuperadmin && (
               <span className="hidden text-xs font-medium text-slate-500 dark:text-slate-400 md:inline">
                 {collegeName}
               </span>
             )}
           </Link>
+
+          {isSuperadmin && allColleges && (
+            <CollegeSwitcher
+              colleges={allColleges}
+              className="hidden shrink-0 rounded-md border border-slate-300 bg-white px-2 py-1 text-xs font-medium text-slate-600 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 md:inline-block"
+            />
+          )}
 
           {user && (
             <div className="hidden flex-1 sm:flex">
