@@ -8,6 +8,7 @@ import SaveSearchButton from "@/components/SaveSearchButton";
 import { categoryIcon } from "@/lib/categoryIcons";
 import MobileActionBar from "./MobileActionBar";
 import LoadMore from "./LoadMore";
+import CollegeSwitcher from "./CollegeSwitcher";
 import { getCategoryFields } from "@/lib/categoryFields";
 
 type SearchParams = Promise<
@@ -20,6 +21,10 @@ type SearchParams = Promise<
     condition?: string;
     posted?: string;
     page?: string;
+    // Superadmin-only: view a specific college's marketplace, or "all" of
+    // them at once. Ignored for everyone else — RLS already scopes them to
+    // their own college regardless of what this param says.
+    college?: string;
     // Plus whichever key the active category's subcategory field uses
     // (e.g. "department" for Books, "type" for Electronics) — see subField.
   } & Record<string, string | undefined>
@@ -99,6 +104,7 @@ export default async function BrowsePage({
     condition,
     posted,
     page: pageRaw,
+    college: collegeRaw,
   } = resolvedSearchParams;
   // Capped so a hand-edited ?page=99999 can't ask Supabase for a million rows.
   const page = Math.min(MAX_PAGES, Math.max(1, Math.floor(Number(pageRaw)) || 1));
@@ -108,11 +114,24 @@ export default async function BrowsePage({
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const [{ data: categories }, { data: blockedRows }] = await Promise.all([
+  const [{ data: categories }, { data: blockedRows }, { data: profile }] = await Promise.all([
     supabase.from("categories").select("id, name, slug").order("name"),
     supabase.from("blocked_users").select("blocked_id").eq("blocker_id", user.id),
+    supabase.from("profiles").select("is_superadmin, college_id").eq("id", user.id).single(),
   ]);
   const blockedIds = new Set(blockedRows?.map((r) => r.blocked_id));
+
+  // Superadmins can drop into any college's marketplace (or all of them at
+  // once) via the dropdown below — everyone else stays scoped to their own
+  // college by RLS ("listings viewable within same college"), same as
+  // always. Without an explicit filter here, a superadmin would see every
+  // college's listings by default, since the RLS policy that grants them
+  // full access is additive to (not a replacement for) the own-college one.
+  const isSuperadmin = profile?.is_superadmin ?? false;
+  const collegeFilter = isSuperadmin ? (collegeRaw || profile?.college_id || null) : null;
+  const { data: allColleges } = isSuperadmin
+    ? await supabase.from("colleges").select("id, name").order("name")
+    : { data: null };
 
   let query = supabase
     .from("listings")
@@ -121,6 +140,9 @@ export default async function BrowsePage({
       { count: "exact" }
     )
     .eq("status", "available");
+  if (collegeFilter && collegeFilter !== "all") {
+    query = query.eq("college_id", collegeFilter);
+  }
   if (blockedIds.size > 0) {
     query = query.not("seller_id", "in", `(${Array.from(blockedIds).join(",")})`);
   }
@@ -189,6 +211,7 @@ export default async function BrowsePage({
       price_max,
       condition,
       posted,
+      ...(isSuperadmin ? { college: collegeFilter ?? undefined } : {}),
       ...(subField ? { [subField.key]: subValue } : {}),
       ...overrides,
     };
@@ -219,6 +242,10 @@ export default async function BrowsePage({
           the sidebar arrives and the action bar's Category sheet steps down.
           Below that the sheet covers the same ground, and these two were
           spending most of the first screen on navigation. */}
+      {isSuperadmin && allColleges && (
+        <CollegeSwitcher colleges={allColleges} current={collegeFilter ?? "all"} />
+      )}
+
       <nav className="mb-4 hidden items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 lg:flex">
         <Link href="/browse" className="hover:text-brand">
           Home
