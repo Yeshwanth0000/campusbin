@@ -90,7 +90,7 @@ export default async function Header() {
           {isSuperadmin && allColleges && (
             <CollegeSwitcher
               colleges={allColleges}
-              className="hidden shrink-0 rounded-md border border-slate-300 bg-white px-2 py-1 text-xs font-medium text-slate-600 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 md:inline-block"
+              className="hidden shrink-0 rounded-md bg-white px-2 py-1 text-xs font-medium text-slate-600 focus:outline-none focus:ring-1 focus:ring-brand dark:bg-slate-900 dark:text-slate-300 md:inline-block"
             />
           )}
 
