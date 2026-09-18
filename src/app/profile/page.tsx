@@ -29,7 +29,7 @@ export default async function ProfilePage() {
         .single(),
       supabase
         .from("listings")
-        .select("id, title, price, images, status, condition, created_at, categories(name)")
+        .select("id, title, price, images, status, condition, created_at, removed_reason, categories(name)")
         .eq("seller_id", user.id)
         .order("created_at", { ascending: false }),
       supabase

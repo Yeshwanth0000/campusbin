@@ -25,6 +25,10 @@ type ListingCardProps = {
    *  the same corner as save/interested — the two are never shown together,
    *  since a seller never sees those buyer-facing actions on their own card. */
   ownerActions?: React.ReactNode;
+  /** Set only on the owner's own profile grid, and only when status is
+   *  "removed" — the reason an admin gave when resolving a report against
+   *  this listing, so a moderation action doesn't just look like a silent bug. */
+  removedReason?: string | null;
 };
 
 export default function ListingCard({
@@ -42,6 +46,7 @@ export default function ListingCard({
   hideInterested = false,
   priority = false,
   ownerActions,
+  removedReason,
 }: ListingCardProps) {
   const showInterested = !hideInterested && sellerId && status === "available";
   const isNew =
@@ -79,7 +84,12 @@ export default function ListingCard({
               Expired
             </span>
           )}
-          {isNew && status !== "sold" && status !== "expired" && (
+          {status === "removed" && (
+            <span className="rounded-full bg-red-600/90 px-2 py-1 text-xs font-semibold text-white">
+              Removed
+            </span>
+          )}
+          {isNew && status !== "sold" && status !== "expired" && status !== "removed" && (
             <span className="rounded-full bg-accent px-2 py-1 text-xs font-semibold text-white">
               New
             </span>
@@ -110,6 +120,12 @@ export default function ListingCard({
         <p className="line-clamp-2 text-[13px] font-medium leading-snug text-slate-900 dark:text-slate-100 sm:min-h-[2.625rem] sm:text-sm sm:leading-normal">
           {title}
         </p>
+
+        {status === "removed" && removedReason && (
+          <p className="mt-0.5 text-[11px] text-red-600 dark:text-red-400">
+            Removed by admin &mdash; {removedReason}
+          </p>
+        )}
 
         {/* On phones the condition rides alongside the price. With the
             category pill hidden there, it was the only thing on the row

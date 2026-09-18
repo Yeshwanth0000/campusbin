@@ -14,6 +14,26 @@ const PHONE_MAX_LENGTH = 20;
 // Loose on purpose — just enough to reject obvious garbage, not to enforce
 // a specific country format (students may list a non-Indian number).
 const PHONE_PATTERN = /^[0-9+()\- ]{7,20}$/;
+// Keeps one person from flooding the marketplace with junk listings —
+// generous enough that no genuine seller should ever hit it, since a
+// student clearing out a dorm room might reasonably list this many at once.
+const MAX_ACTIVE_LISTINGS = 10;
+
+async function activeListingLimitError(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  sellerId: string
+): Promise<string | null> {
+  const { count } = await supabase
+    .from("listings")
+    .select("id", { count: "exact", head: true })
+    .eq("seller_id", sellerId)
+    .eq("status", "available");
+
+  if ((count ?? 0) >= MAX_ACTIVE_LISTINGS) {
+    return `You've reached the limit of ${MAX_ACTIVE_LISTINGS} active listings. Mark one as sold or delete it before posting another.`;
+  }
+  return null;
+}
 
 function extractCustomFields(formData: FormData, categorySlug: string | null | undefined) {
   const defs = categorySlug ? CATEGORY_CUSTOM_FIELDS[categorySlug] ?? [] : [];
@@ -71,6 +91,11 @@ export async function createListing(
     .single();
   if (!profile) {
     return { error: "Your profile could not be found." };
+  }
+
+  const limitError = await activeListingLimitError(supabase, user.id);
+  if (limitError) {
+    return { error: limitError };
   }
 
   if (phoneNumber) {
@@ -244,7 +269,7 @@ export async function relistListing(listingId: string): Promise<ListingResult> {
   const { data: original } = await supabase
     .from("listings")
     .select(
-      "title, description, price, category_id, condition, meetup_spot, images, seller_id, college_id, custom_fields"
+      "title, description, price, category_id, condition, meetup_spot, images, seller_id, college_id, custom_fields, status"
     )
     .eq("id", listingId)
     .single();
@@ -254,6 +279,17 @@ export async function relistListing(listingId: string): Promise<ListingResult> {
   }
   if (original.seller_id !== user.id) {
     return { error: "You can only relist your own listings." };
+  }
+  // The menu only offers "Relist" for sold/expired listings, but that's just
+  // UI — without this check, calling the action directly on a listing an
+  // admin removed for being spam would silently recreate it verbatim.
+  if (original.status !== "sold" && original.status !== "expired") {
+    return { error: "This listing can't be relisted." };
+  }
+
+  const limitError = await activeListingLimitError(supabase, user.id);
+  if (limitError) {
+    return { error: limitError };
   }
 
   const { data: created, error } = await supabase

@@ -13,12 +13,14 @@ type Listing = {
   condition: string | null;
   created_at: string;
   categories: { name: string } | null;
+  removed_reason?: string | null;
 };
 
 const TABS = [
   { value: "all", label: "All" },
   { value: "available", label: "Active" },
   { value: "sold", label: "Sold" },
+  { value: "removed", label: "Removed" },
 ] as const;
 
 export default function MyListingsGrid({ listings }: { listings: Listing[] }) {
@@ -29,12 +31,18 @@ export default function MyListingsGrid({ listings }: { listings: Listing[] }) {
     all: listings.length,
     available: listings.filter((l) => l.status === "available").length,
     sold: listings.filter((l) => l.status === "sold").length,
+    removed: listings.filter((l) => l.status === "removed").length,
   };
+
+  // Unlike Active/Sold, most sellers will have zero Removed listings
+  // forever — showing that tab unconditionally would be permanent clutter
+  // for a case that (hopefully) rarely applies.
+  const visibleTabs = TABS.filter((t) => t.value !== "removed" || counts.removed > 0);
 
   return (
     <div>
       <div className="flex gap-1.5">
-        {TABS.map((t) => (
+        {visibleTabs.map((t) => (
           <button
             key={t.value}
             type="button"
@@ -64,6 +72,7 @@ export default function MyListingsGrid({ listings }: { listings: Listing[] }) {
               condition={listing.condition}
               createdAt={listing.created_at}
               categoryName={listing.categories?.name}
+              removedReason={listing.removed_reason}
               hideSave
               hideInterested
               ownerActions={<SellerQuickActions listingId={listing.id} status={listing.status} />}
@@ -72,7 +81,9 @@ export default function MyListingsGrid({ listings }: { listings: Listing[] }) {
         </div>
       ) : (
         <div className="mt-4 rounded-xl border border-dashed border-slate-300 py-16 text-center text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
-          {tab === "all" ? "You haven't posted anything yet." : `No ${tab === "available" ? "active" : "sold"} listings.`}
+          {tab === "all"
+            ? "You haven't posted anything yet."
+            : `No ${tab === "available" ? "active" : tab} listings.`}
         </div>
       )}
     </div>

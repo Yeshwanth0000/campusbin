@@ -150,6 +150,8 @@ export type Database = {
           images: string[]
           meetup_spot: string | null
           price: number
+          removed_at: string | null
+          removed_reason: string | null
           seller_id: string
           show_phone: boolean
           sold_at: string | null
@@ -168,6 +170,8 @@ export type Database = {
           images?: string[]
           meetup_spot?: string | null
           price?: number
+          removed_at?: string | null
+          removed_reason?: string | null
           seller_id: string
           show_phone?: boolean
           sold_at?: string | null
@@ -186,6 +190,8 @@ export type Database = {
           images?: string[]
           meetup_spot?: string | null
           price?: number
+          removed_at?: string | null
+          removed_reason?: string | null
           seller_id?: string
           show_phone?: boolean
           sold_at?: string | null
