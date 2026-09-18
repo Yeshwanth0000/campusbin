@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { CATEGORY_CUSTOM_FIELDS } from "@/lib/categoryFields";
 import { storagePathsFromUrls } from "@/lib/storage";
+import { checkImageSafety } from "@/lib/moderation/imageSafety";
 
 const CUSTOM_FIELD_MAX_LENGTH = 200;
 const TITLE_MAX_LENGTH = 150;
@@ -113,12 +114,25 @@ export async function createListing(
   }
   const customFields = extractCustomFields(formData, categorySlug);
 
-  const imageUrls: string[] = [];
+  // Read and safety-check every photo before uploading any of them, so a
+  // blocked photo never leaves a partial set of images sitting in storage.
+  const fileBuffers: Buffer[] = [];
   for (const file of files) {
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const safety = await checkImageSafety(buffer);
+    if (safety.blocked) {
+      return { error: safety.reason };
+    }
+    fileBuffers.push(buffer);
+  }
+
+  const imageUrls: string[] = [];
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
     const path = `${user.id}/${crypto.randomUUID()}-${file.name}`;
     const { error: uploadError } = await supabase.storage
       .from("listing-images")
-      .upload(path, file);
+      .upload(path, fileBuffers[i], { contentType: file.type || "image/jpeg" });
     if (uploadError) {
       return { error: `Photo upload failed: ${uploadError.message}` };
     }
@@ -211,12 +225,25 @@ export async function updateListing(
   }
   const customFields = extractCustomFields(formData, categorySlug);
 
-  const imageUrls: string[] = [...keptImages];
+  // Same pre-check as createListing: verify every new photo before
+  // uploading any of them.
+  const newFileBuffers: Buffer[] = [];
   for (const file of newFiles) {
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const safety = await checkImageSafety(buffer);
+    if (safety.blocked) {
+      return { error: safety.reason };
+    }
+    newFileBuffers.push(buffer);
+  }
+
+  const imageUrls: string[] = [...keptImages];
+  for (let i = 0; i < newFiles.length; i++) {
+    const file = newFiles[i];
     const path = `${user.id}/${crypto.randomUUID()}-${file.name}`;
     const { error: uploadError } = await supabase.storage
       .from("listing-images")
-      .upload(path, file);
+      .upload(path, newFileBuffers[i], { contentType: file.type || "image/jpeg" });
     if (uploadError) {
       return { error: `Photo upload failed: ${uploadError.message}` };
     }
