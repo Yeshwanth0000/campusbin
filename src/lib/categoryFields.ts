@@ -108,7 +108,6 @@ export const CATEGORY_CUSTOM_FIELDS: Record<string, CategoryFieldDef[]> = {
     { key: "brand", label: "Brand", placeholder: "e.g. Hero, Firefox, Trek" },
     { key: "frame_size", label: "Frame size", placeholder: "e.g. 26 inch" },
   ],
-  fashion: [{ key: "size", label: "Size", placeholder: "e.g. M, UK 9" }],
   stationery: [
     { key: "subject", label: "Subject / Course", placeholder: "e.g. CS2001, Thermodynamics" },
   ],
