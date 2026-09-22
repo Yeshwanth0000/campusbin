@@ -135,6 +135,11 @@ export const CATEGORY_CUSTOM_FIELDS: Record<string, CategoryFieldDef[]> = {
     { key: "brand", label: "Brand", placeholder: "e.g. Casio, Texas Instruments" },
     { key: "model", label: "Model", placeholder: "e.g. fx-991ES" },
   ],
+  "movie-tickets": [
+    { key: "theatre", label: "Theatre", placeholder: "e.g. PVR City Center, INOX GVK Mall" },
+    { key: "show_time", label: "Show date & time", placeholder: "e.g. 22 Sep, 7:30 PM" },
+    { key: "seats", label: "Seats", placeholder: "e.g. G12, G13 (2 seats)" },
+  ],
 };
 
 export function getCategoryFields(slug: string | undefined | null): CategoryFieldDef[] {
