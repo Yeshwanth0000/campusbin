@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { CATEGORY_CUSTOM_FIELDS } from "@/lib/categoryFields";
 import { storagePathsFromUrls } from "@/lib/storage";
 import { checkImageSafety } from "@/lib/moderation/imageSafety";
+import { MAX_ACTIVE_LISTINGS } from "@/lib/listingLimits";
 
 const CUSTOM_FIELD_MAX_LENGTH = 200;
 const TITLE_MAX_LENGTH = 150;
@@ -15,10 +16,6 @@ const PHONE_MAX_LENGTH = 20;
 // Loose on purpose — just enough to reject obvious garbage, not to enforce
 // a specific country format (students may list a non-Indian number).
 const PHONE_PATTERN = /^[0-9+()\- ]{7,20}$/;
-// Keeps one person from flooding the marketplace with junk listings —
-// generous enough that no genuine seller should ever hit it, since a
-// student clearing out a dorm room might reasonably list this many at once.
-const MAX_ACTIVE_LISTINGS = 10;
 
 async function activeListingLimitError(
   supabase: Awaited<ReturnType<typeof createClient>>,
