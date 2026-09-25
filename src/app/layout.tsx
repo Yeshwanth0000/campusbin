@@ -7,6 +7,7 @@ import ThemeInitScript from "@/components/ThemeInitScript";
 import ToastContainer from "@/components/ToastContainer";
 import PageTransition from "@/components/PageTransition";
 import AmbientBackground from "@/components/AmbientBackground";
+import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -103,6 +104,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           <PageTransition>{children}</PageTransition>
         </main>
         <ToastContainer />
+        <ServiceWorkerRegister />
       </body>
     </html>
   );

@@ -56,6 +56,10 @@ export const config = {
     // Digital Asset Links file (assetlinks.json) lives, and Google's
     // unauthenticated verifier fetches it directly to confirm the Play
     // Store app is allowed to open campusbin.in links without browser chrome.
-    "/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|opengraph-image|robots.txt|sitemap.xml|icon|apple-icon|\\.well-known|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    //
+    // sw.js and offline.html are fetched by the service worker itself; for a
+    // logged-out visitor the auth guard would hand it the /login page to
+    // cache as the offline fallback instead.
+    "/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|opengraph-image|robots.txt|sitemap.xml|icon|apple-icon|\\.well-known|sw\\.js|offline\\.html|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

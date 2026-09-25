@@ -11,6 +11,9 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: "/browse",
     scope: "/",
     display: "standalone",
+    // "any" rather than "portrait": Play flags apps that lock rotation on
+    // tablets and Chromebooks, and the layout is already responsive.
+    orientation: "any",
     lang: "en-IN",
     categories: ["shopping", "lifestyle"],
     background_color: "#ffffff",
