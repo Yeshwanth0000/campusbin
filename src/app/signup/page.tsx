@@ -127,10 +127,14 @@ export default function SignupPage() {
             I agree to the{" "}
             <Link href="/terms" target="_blank" className="font-semibold text-brand hover:text-brand-dark">
               Terms &amp; Conditions
-            </Link>{" "}
-            and{" "}
+            </Link>
+            ,{" "}
             <Link href="/safety" target="_blank" className="font-semibold text-brand hover:text-brand-dark">
               Community Guidelines
+            </Link>
+            , and{" "}
+            <Link href="/privacy" target="_blank" className="font-semibold text-brand hover:text-brand-dark">
+              Privacy Policy
             </Link>
             .
           </span>
