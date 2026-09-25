@@ -36,6 +36,7 @@ export async function updateSession(request: NextRequest, requestHeaders: Header
     request.nextUrl.pathname.startsWith("/forgot-password") ||
     request.nextUrl.pathname.startsWith("/auth") ||
     request.nextUrl.pathname.startsWith("/terms") ||
+    request.nextUrl.pathname.startsWith("/privacy") ||
     request.nextUrl.pathname.startsWith("/safety") ||
     request.nextUrl.pathname.startsWith("/about") ||
     // A shared listing link needs to reach the page itself so link-preview

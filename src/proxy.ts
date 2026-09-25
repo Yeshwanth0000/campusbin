@@ -51,6 +51,11 @@ export const config = {
     // was. Google's crawler (and every logged-out browser tab) hit that
     // redirect instead of the real icon, which is why search results showed
     // a fallback icon instead of the CB logo.
-    "/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|opengraph-image|robots.txt|sitemap.xml|icon|apple-icon|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    //
+    // .well-known must stay unauthenticated too — that's where Android's
+    // Digital Asset Links file (assetlinks.json) lives, and Google's
+    // unauthenticated verifier fetches it directly to confirm the Play
+    // Store app is allowed to open campusbin.in links without browser chrome.
+    "/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|opengraph-image|robots.txt|sitemap.xml|icon|apple-icon|\\.well-known|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
