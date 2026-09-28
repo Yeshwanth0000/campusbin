@@ -56,8 +56,8 @@ export default function FloatingHeaderShell({ children }: { children: ReactNode 
       <header
         className={`mx-auto w-full max-w-none transition-all duration-300 ease-out sm:max-w-[min(94vw,96rem)] ${
           scrolled
-            ? "rounded-2xl border border-slate-200/70 bg-white/75 shadow-lg shadow-slate-900/10 backdrop-blur-xl dark:border-slate-800/60 dark:bg-slate-950/60 dark:shadow-black/30"
-            : "rounded-none border-b border-slate-200 bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95"
+            ? "rounded-2xl border border-slate-200/70 bg-white shadow-lg shadow-slate-900/10 dark:border-slate-800/60 dark:bg-slate-950 dark:shadow-black/30 lg:bg-white/75 lg:backdrop-blur-xl lg:dark:bg-slate-950/60"
+            : "rounded-none border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950 lg:bg-white/95 lg:backdrop-blur lg:dark:bg-slate-950/95"
         }`}
       >
         {children}
