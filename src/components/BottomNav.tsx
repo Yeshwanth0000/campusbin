@@ -45,7 +45,7 @@ export default function BottomNav({ hasUnread = false }: { hasUnread?: boolean }
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   return (
-    <nav className="fixed inset-x-0 top-[100dvh] z-30 -translate-y-full border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950 lg:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950 lg:hidden">
       <div className="mx-auto flex max-w-6xl items-center justify-around px-2 py-1.5">
         <NavItem href="/browse" label="Browse" icon={ICONS.home} active={isActive("/browse")} />
         <NavItem href="/saved" label="Saved" icon={ICONS.heart} active={isActive("/saved")} />
