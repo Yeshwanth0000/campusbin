@@ -1,6 +1,12 @@
+import type { ReactNode } from "react";
+import Link from "next/link";
+import { CONTACT_EMAIL } from "@/lib/contact";
+
 export const metadata = { title: "Privacy Policy — CampusBin" };
 
-const SECTIONS = [
+const LAST_UPDATED = "28 September 2026";
+
+const SECTIONS: { title: string; body: ReactNode }[] = [
   {
     title: "What we collect",
     body: "To create an account we collect your name, college email address, and a password. You can optionally add a phone number and profile photo. Listings you post include their photos, description, price, and category. If you enable push notifications, your browser's push subscription is stored so we can deliver them.",
@@ -19,11 +25,21 @@ const SECTIONS = [
   },
   {
     title: "Where it's stored",
-    body: "Data is stored with Supabase (our database, authentication, and file storage provider) and the app is hosted on Vercel. We don't sell your data or share it with advertisers. We may disclose information if required by law or to investigate abuse reported through the platform.",
+    body: "Data is stored with Supabase (our database, authentication, and file storage provider) and the app is hosted on Vercel. Verification and notification emails are sent through Resend, and push notifications are delivered through your browser's own push service (for example Google's or Apple's). These providers process data only to run CampusBin for us. We don't sell your data or share it with advertisers, and we don't use analytics or advertising trackers. We may disclose information if required by law or to investigate abuse reported through the platform.",
   },
   {
     title: "Your controls",
-    body: "From your profile you can edit or remove your phone number and photo at any time, export a copy of your data as a JSON file, or permanently delete your account — which removes your profile, listings, messages, and saved items.",
+    body: (
+      <>
+        From your profile you can edit or remove your phone number and photo at any time, export a
+        copy of your data as a JSON file, or permanently delete your account, which removes your
+        profile, listings, messages, and saved items. If you can&apos;t log in, see{" "}
+        <Link href="/delete-account" className="font-medium text-brand hover:underline">
+          how to request deletion
+        </Link>
+        .
+      </>
+    ),
   },
   {
     title: "Changes",
@@ -31,7 +47,15 @@ const SECTIONS = [
   },
   {
     title: "Contact",
-    body: "Questions about this policy or your data? Reach out through the contact details on our About page.",
+    body: (
+      <>
+        Questions about this policy or your data? Email{" "}
+        <a href={`mailto:${CONTACT_EMAIL}`} className="font-medium text-brand hover:underline">
+          {CONTACT_EMAIL}
+        </a>
+        .
+      </>
+    ),
   },
 ];
 
@@ -40,7 +64,7 @@ export default function PrivacyPage() {
     <div className="mx-auto max-w-2xl px-4 py-10">
       <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Privacy Policy</h1>
       <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-        Last updated {new Date().toLocaleDateString("en-IN", { year: "numeric", month: "long" })}
+        Last updated {LAST_UPDATED}
       </p>
 
       <ol className="mt-8 divide-y divide-slate-200/70 dark:divide-slate-800/70">
