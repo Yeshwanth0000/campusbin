@@ -50,6 +50,14 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* Android's overscroll stretch/bounce moves the whole page, including
+   sticky and fixed bars, so they wobble against the content at the top and
+   bottom edges — most visible in the installed Play Store app. */
+html,
+body {
+  overscroll-behavior-y: none;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
