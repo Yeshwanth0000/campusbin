@@ -15,7 +15,6 @@ export default function robots(): MetadataRoute.Robots {
         "/listings",
         "/profile",
         "/saved",
-        "/saved-searches",
         "/sell",
         "/sellers",
         "/notifications",

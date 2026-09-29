@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import ListingCard from "@/components/ListingCard";
 import Reveal from "@/components/Reveal";
-import SaveSearchButton from "@/components/SaveSearchButton";
 import { categoryIcon } from "@/lib/categoryIcons";
 import MobileActionBar from "./MobileActionBar";
 import LoadMore from "./LoadMore";
@@ -711,21 +710,11 @@ export default async function BrowsePage({
             <p className="text-xs text-slate-500 dark:text-slate-400 sm:text-sm">
               Showing {shown} of {total} result{total === 1 ? "" : "s"}
             </p>
-            <div className="flex items-center gap-3">
-              {hasAnyFilter && (
-                <SaveSearchButton
-                  query={q}
-                  categoryId={activeCategory?.id}
-                  condition={condition}
-                  posted={posted}
-                />
-              )}
-              <div className="hidden items-center gap-2 text-sm lg:flex">
-                <label htmlFor="sort" className="text-slate-500 dark:text-slate-400">
-                  Sort by
-                </label>
-                <SortSelect current={sort} buildUrl={buildUrl} />
-              </div>
+            <div className="hidden items-center gap-2 text-sm lg:flex">
+              <label htmlFor="sort" className="text-slate-500 dark:text-slate-400">
+                Sort by
+              </label>
+              <SortSelect current={sort} buildUrl={buildUrl} />
             </div>
           </div>
 

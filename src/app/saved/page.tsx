@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import ListingCard from "@/components/ListingCard";
@@ -25,17 +24,9 @@ export default async function SavedPage() {
 
   return (
     <div className="mx-auto w-full max-w-none px-3 py-4 sm:max-w-[min(94vw,96rem)] sm:px-4 sm:py-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Saved items</h1>
-          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">Things you&rsquo;ve bookmarked to check out later.</p>
-        </div>
-        <Link
-          href="/saved-searches"
-          className="shrink-0 text-sm font-medium text-brand hover:text-brand-dark"
-        >
-          Saved searches
-        </Link>
+      <div>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Saved items</h1>
+        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">Things you&rsquo;ve bookmarked to check out later.</p>
       </div>
 
       {listings.length > 0 ? (
