@@ -116,7 +116,7 @@ export async function createListing(
   const fileBuffers: Buffer[] = [];
   for (const file of files) {
     const buffer = Buffer.from(await file.arrayBuffer());
-    const safety = await checkImageSafety(buffer);
+    const safety = await checkImageSafety(buffer, "listing");
     if (safety.blocked) {
       return { error: safety.reason };
     }
@@ -227,7 +227,7 @@ export async function updateListing(
   const newFileBuffers: Buffer[] = [];
   for (const file of newFiles) {
     const buffer = Buffer.from(await file.arrayBuffer());
-    const safety = await checkImageSafety(buffer);
+    const safety = await checkImageSafety(buffer, "listing");
     if (safety.blocked) {
       return { error: safety.reason };
     }

@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { storagePathsFromUrls } from "@/lib/storage";
+import { checkImageSafety } from "@/lib/moderation/imageSafety";
 
 export type ProfileResult = { error: string } | { error: null };
 
@@ -60,6 +61,13 @@ export async function updateAvatar(
   }
   if (file.size > AVATAR_MAX_BYTES) {
     return { error: "Photo must be under 2MB." };
+  }
+
+  // Checked before the old picture is cleared out below, so a refused photo
+  // leaves the current one in place.
+  const safety = await checkImageSafety(Buffer.from(await file.arrayBuffer()), "avatar");
+  if (safety.blocked) {
+    return { error: safety.reason };
   }
 
   // Clear out any previous avatar file(s) first — upsert only overwrites an
