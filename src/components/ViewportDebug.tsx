@@ -15,11 +15,14 @@ export default function ViewportDebug() {
     const tick = () => {
       const vv = window.visualViewport;
       const fixedBottom = probe.current ? Math.round(probe.current.getBoundingClientRect().bottom) : -1;
+      const nav = document.querySelector("[data-bottom-nav]");
+      const navBottom = nav ? Math.round(nav.getBoundingClientRect().bottom) : -1;
+      const visibleBottom = vv ? Math.round(vv.offsetTop + vv.height) : -1;
       setLines([
+        `navBottom ${navBottom}  visibleBottom ${visibleBottom}`,
         `innerH ${window.innerHeight}  clientH ${document.documentElement.clientHeight}`,
         `vvH ${vv ? Math.round(vv.height) : "-"}  vvTop ${vv ? Math.round(vv.offsetTop) : "-"}`,
         `fixedBottom ${fixedBottom}  scrollY ${Math.round(window.scrollY)}`,
-        `screenH ${screen.height}  dpr ${window.devicePixelRatio}`,
       ]);
       raf = requestAnimationFrame(tick);
     };

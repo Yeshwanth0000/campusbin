@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useRef } from "react";
 
 const ICONS = {
   home: (
@@ -40,12 +41,67 @@ const ICONS = {
   ),
 };
 
+// The address bar accounts for at most ~100px of difference between
+// innerHeight and the visual viewport; an on-screen keyboard is 250px+.
+const KEYBOARD_GAP_PX = 150;
+
 export default function BottomNav({ hasUnread = false }: { hasUnread?: boolean }) {
   const pathname = usePathname();
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
+  const navRef = useRef<HTMLElement>(null);
+
+  // On Chrome for Android, `bottom: 0` follows window.innerHeight, which lags
+  // behind the address bar as it hides and shows during scroll. A phone
+  // recording showed the bar sitting up to 100px below the visible screen
+  // (hidden) or 60px above it (content showing underneath). The visual
+  // viewport reports where the visible screen actually ends, so pin the bar
+  // there. A large gap means the on-screen keyboard is open; fall back to
+  // plain `bottom: 0` then, which leaves the bar behind the keyboard instead
+  // of riding up over the input being typed in.
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    let raf = 0;
+    function place() {
+      raf = 0;
+      const el = navRef.current;
+      if (!el || !vv) return;
+      // A zero-height viewport (a background or prerendering tab) would put
+      // the bar above the screen, and while pinch-zoomed the visual viewport
+      // is a panned sub-area; leave the CSS default in both cases.
+      if (
+        vv.height === 0 ||
+        Math.abs(vv.scale - 1) > 0.01 ||
+        window.innerHeight - vv.height > KEYBOARD_GAP_PX
+      ) {
+        el.style.top = "";
+        el.style.bottom = "";
+        return;
+      }
+      el.style.bottom = "auto";
+      el.style.top = `${vv.offsetTop + vv.height - el.offsetHeight}px`;
+    }
+    function schedule() {
+      if (!raf) raf = requestAnimationFrame(place);
+    }
+    place();
+    vv.addEventListener("resize", schedule);
+    vv.addEventListener("scroll", schedule);
+    window.addEventListener("scroll", schedule, { passive: true });
+    return () => {
+      cancelAnimationFrame(raf);
+      vv.removeEventListener("resize", schedule);
+      vv.removeEventListener("scroll", schedule);
+      window.removeEventListener("scroll", schedule);
+    };
+  }, []);
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950 lg:hidden">
+    <nav
+      ref={navRef}
+      data-bottom-nav
+      className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950 lg:hidden"
+    >
       <div className="mx-auto flex max-w-6xl items-center justify-around px-2 py-1.5">
         <NavItem href="/browse" label="Browse" icon={ICONS.home} active={isActive("/browse")} />
         <NavItem href="/saved" label="Saved" icon={ICONS.heart} active={isActive("/saved")} />
