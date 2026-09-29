@@ -9,19 +9,25 @@ import {
   DetectModerationLabelsCommand,
 } from "@aws-sdk/client-rekognition";
 
-// Rekognition's moderation labels are hierarchical (e.g. "Explicit Nudity" >
-// "Nudity", "Violence" > "Weapons"). Blocking on the top-level parent
-// categories catches their children too, without listing every leaf label.
-const BLOCKED_TOP_LEVEL_CATEGORIES = [
-  "Explicit Nudity",
-  "Violence",
-  "Weapons",
-  "Drugs",
-  "Tobacco",
-  "Alcohol",
-  "Gambling",
-  "Hate Symbols",
-];
+// Top-level categories to block, and how each is described to the seller.
+// The names must match Rekognition's moderation taxonomy exactly — a name
+// that doesn't match blocks nothing, silently. These are from model 7.0,
+// which renamed several older ones (e.g. "Drugs" and "Tobacco" became
+// "Drugs & Tobacco"): https://docs.aws.amazon.com/rekognition/latest/dg/moderation-api.html
+// Blocking a top-level category covers everything under it, e.g. "Violence"
+// includes "Weapons" and "Explicit" includes "Explicit Nudity".
+const BLOCKED_CATEGORIES = new Map([
+  ["Explicit", "explicit content"],
+  ["Violence", "violence or weapons"],
+  ["Drugs & Tobacco", "drugs or tobacco"],
+  ["Alcohol", "alcohol"],
+  ["Gambling", "gambling"],
+  ["Hate Symbols", "hate symbols"],
+]);
+
+// A newer model may rename categories again, so a response from any other
+// version is logged as a prompt to recheck the names above.
+const EXPECTED_MODEL_VERSION = "7.0";
 
 // Below this score (0-100), a match is too uncertain to act on — kept fairly
 // high to avoid false positives on ordinary product photos.
@@ -54,20 +60,30 @@ export async function checkImageSafety(imageBytes: Buffer): Promise<ImageSafetyR
       })
     );
     labels = result.ModerationLabels ?? [];
+    if (result.ModerationModelVersion !== EXPECTED_MODEL_VERSION) {
+      console.warn(
+        `Rekognition moderation model is ${result.ModerationModelVersion}, expected ${EXPECTED_MODEL_VERSION} — check BLOCKED_CATEGORIES still matches its label names.`
+      );
+    }
   } catch (err) {
     console.error("Rekognition request failed:", err);
     return { blocked: false };
   }
 
+  // A match comes back once per level of the taxonomy, e.g. "Smoking", its
+  // parent "Drugs & Tobacco Paraphernalia & Use", and the top-level "Drugs &
+  // Tobacco" itself (whose ParentName is ""). So the top-level category shows
+  // up as some label's own name — its parent's name is checked too, in case
+  // a response ever leaves the top-level entry out.
   for (const label of labels) {
-    // ParentName is empty on a top-level label itself (e.g. "Violence" is
-    // its own parent), so check both the label's own name and its parent.
-    const topLevel = label.ParentName || label.Name;
-    if (topLevel && BLOCKED_TOP_LEVEL_CATEGORIES.includes(topLevel)) {
-      return {
-        blocked: true,
-        reason: `One of your photos was flagged as ${topLevel.toLowerCase()} and can't be uploaded.`,
-      };
+    for (const name of [label.Name, label.ParentName]) {
+      const description = name && BLOCKED_CATEGORIES.get(name);
+      if (description) {
+        return {
+          blocked: true,
+          reason: `One of your photos was flagged for ${description} and can't be uploaded.`,
+        };
+      }
     }
   }
 
