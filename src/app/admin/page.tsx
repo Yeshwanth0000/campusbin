@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { TrendAreaChart, Sparkline, HBarChart, VBarChart, DonutChart, SERIES_COLORS } from "./charts";
 import ExpensesSection, { type Expense } from "./ExpensesSection";
+import { getResendUsage } from "@/lib/resend/usage";
 
 export const metadata = { title: "Dashboard — Admin — CampusBin" };
 export const dynamic = "force-dynamic";
@@ -126,6 +127,11 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
           .order("incurred_on", { ascending: false })
       ).data ?? []
     : [];
+
+  // Email delivery is one Resend account shared by every college, not a
+  // per-college resource — same reasoning as gating Expenditure to
+  // superadmin only.
+  const resendUsage = profile.is_superadmin ? await getResendUsage() : null;
 
   if (error || !stats) {
     return (
@@ -463,6 +469,33 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
         <StorageGauge storageBytes={kpis.storage_bytes} />
       </Section>
 
+      {profile.is_superadmin && resendUsage && (
+        <Section
+          title="Email delivery"
+          hint="Confirmation and reset emails go through Resend on the free plan — this is what actually gates how many students can sign up."
+        >
+          {resendUsage.error ? (
+            <p className="rounded-lg border border-dashed border-rose-300 bg-rose-50/60 px-3 py-2.5 text-xs text-rose-700 dark:border-rose-900 dark:bg-rose-950/30 dark:text-rose-300">
+              Couldn&rsquo;t reach Resend: {resendUsage.error}
+            </p>
+          ) : !resendUsage.connected ? (
+            <p className="rounded-lg border border-dashed border-slate-300 px-3 py-2.5 text-xs text-slate-500 dark:border-slate-700 dark:text-slate-400">
+              Add a <code className="font-mono">RESEND_API_KEY</code> environment variable to show live send counts here.
+            </p>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2">
+              <QuotaGauge label="Sent today" used={resendUsage.sentToday} limit={resendUsage.dailyLimit} />
+              <QuotaGauge
+                label="Sent this month"
+                used={resendUsage.sentThisMonth}
+                limit={resendUsage.monthlyLimit}
+                caveat={resendUsage.cappedAtPageLimit ? "Showing a partial count — this month's volume is high enough that we stopped counting early." : undefined}
+              />
+            </div>
+          )}
+        </Section>
+      )}
+
       <Section title="Most viewed">
         {stats.top_listings.length > 0 ? (
           <ol className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -706,6 +739,37 @@ function StorageGauge({ storageBytes }: { storageBytes: number }) {
           style={{ width: `${Math.max(storagePct, 1)}%` }}
         />
       </div>
+    </div>
+  );
+}
+
+function QuotaGauge({
+  label,
+  used,
+  limit,
+  caveat,
+}: {
+  label: string;
+  used: number;
+  limit: number;
+  caveat?: string;
+}) {
+  const usedPct = Math.min(100, (used / limit) * 100);
+  return (
+    <div>
+      <div className="flex items-baseline justify-between gap-3">
+        <p className="text-sm text-slate-700 dark:text-slate-300">
+          {label} — {used.toLocaleString("en-IN")} of {limit.toLocaleString("en-IN")}
+        </p>
+        <p className="text-xs text-slate-500 dark:text-slate-400">{Math.round(usedPct)}%</p>
+      </div>
+      <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+        <div
+          className={`h-full rounded-full ${usedPct > 90 ? "bg-rose-500" : usedPct > 70 ? "bg-amber-500" : "bg-emerald-500"}`}
+          style={{ width: `${Math.max(usedPct, used > 0 ? 1 : 0)}%` }}
+        />
+      </div>
+      {caveat && <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">{caveat}</p>}
     </div>
   );
 }
