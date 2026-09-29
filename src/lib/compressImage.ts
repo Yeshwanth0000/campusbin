@@ -1,8 +1,11 @@
 // Downscales and re-encodes an image on the client before upload, so a
 // straight-from-camera 4000x3000 photo doesn't tie up a phone's mobile data
 // (or eat into the 2MB/5MB storage limits) for what's displayed at most as a
-// few hundred pixels wide anywhere in the app. Skips files that are already
-// small enough, and non-image files, rather than risking degrading them.
+// few hundred pixels wide anywhere in the app. Skips JPEGs and PNGs that are
+// already small enough, and non-image files, rather than risking degrading
+// them. Any other image format (WebP, GIF, AVIF...) is always converted to
+// JPEG, however small: photo moderation can only read JPEG and PNG, and
+// turns anything else away. An animated GIF keeps just its first frame.
 const SKIP_BELOW_BYTES = 300 * 1024;
 
 // iPhone cameras save photos as HEIC by default. No browser but Safari can
@@ -38,7 +41,11 @@ export async function compressImage(
     }
   }
 
-  if (!file.type.startsWith("image/") || file.type === "image/gif" || file.size < SKIP_BELOW_BYTES) {
+  if (!file.type.startsWith("image/")) {
+    return file;
+  }
+  const isJpegOrPng = file.type === "image/jpeg" || file.type === "image/png";
+  if (isJpegOrPng && file.size < SKIP_BELOW_BYTES) {
     return file;
   }
 
@@ -53,19 +60,26 @@ export async function compressImage(
     canvas.height = height;
     const ctx = canvas.getContext("2d");
     if (!ctx) return file;
+    // JPEG has no transparency, so transparent pixels would come out black.
+    // Cut-out product shots are often transparent PNGs or WebPs.
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, 0, width, height);
     ctx.drawImage(bitmap, 0, 0, width, height);
     bitmap.close();
 
     const blob: Blob | null = await new Promise((resolve) =>
       canvas.toBlob(resolve, "image/jpeg", quality)
     );
-    if (!blob || blob.size >= file.size) return file;
+    if (!blob) return file;
+    // A JPEG or PNG that re-encoding wouldn't shrink is kept as it is. Any
+    // other format has to become a JPEG either way.
+    if (isJpegOrPng && blob.size >= file.size) return file;
 
     const newName = file.name.replace(/\.[^.]+$/, "") + ".jpg";
     return new File([blob], newName, { type: "image/jpeg" });
   } catch {
     // Any failure (unsupported format, decode error) — fall back to the
-    // original file rather than blocking the upload.
+    // original file and let the server decide whether it can be accepted.
     return file;
   }
 }

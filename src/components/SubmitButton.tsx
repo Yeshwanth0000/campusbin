@@ -6,7 +6,13 @@ import { useFormStatus } from "react-dom";
 const MAGNETIC_STRENGTH = 0.25;
 const MAGNETIC_MAX = 6;
 
-export default function SubmitButton({ children }: { children: React.ReactNode }) {
+export default function SubmitButton({
+  children,
+  disabled = false,
+}: {
+  children: React.ReactNode;
+  disabled?: boolean;
+}) {
   const { pending } = useFormStatus();
   const ref = useRef<HTMLButtonElement>(null);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
@@ -39,7 +45,7 @@ export default function SubmitButton({ children }: { children: React.ReactNode }
     <button
       ref={ref}
       type="submit"
-      disabled={pending}
+      disabled={pending || disabled}
       onMouseMove={handleMouseMove}
       onMouseLeave={() => {
         handleMouseLeave();

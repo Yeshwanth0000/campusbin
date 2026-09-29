@@ -2,11 +2,15 @@
 // moderation labels. Requires AWS_REKOGNITION_ACCESS_KEY_ID,
 // AWS_REKOGNITION_SECRET_ACCESS_KEY, and AWS_REKOGNITION_REGION — if any is
 // missing, or the API call itself fails, moderation is skipped rather than
-// blocking listing creation over a missing key or a transient outage.
+// blocking listing creation over a missing key or a transient outage. A
+// photo Rekognition can't read at all is turned away instead, since it
+// would otherwise be stored without ever being checked.
 
 import {
   RekognitionClient,
   DetectModerationLabelsCommand,
+  ImageTooLargeException,
+  InvalidImageFormatException,
 } from "@aws-sdk/client-rekognition";
 
 // Top-level categories to block, and how each is described to the seller.
@@ -33,6 +37,20 @@ const EXPECTED_MODEL_VERSION = "7.0";
 // high to avoid false positives on ordinary product photos.
 const MIN_CONFIDENCE = 75;
 
+// Rekognition only reads JPEG and PNG, but the listing-images bucket also
+// accepts WebP and GIF. The sell and edit forms convert other formats to
+// JPEG before uploading, so this only catches a photo whose conversion
+// failed, or an upload that didn't come through the forms.
+const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+
+function isJpegOrPng(bytes: Buffer): boolean {
+  const isJpeg = bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
+  return isJpeg || bytes.subarray(0, 8).equals(PNG_SIGNATURE);
+}
+
+const UNCHECKABLE_REASON =
+  "One of your photos couldn't be checked. Please upload it as a JPEG or PNG under 5 MB.";
+
 export type ImageSafetyResult = { blocked: false } | { blocked: true; reason: string };
 
 function getClient(): RekognitionClient | null {
@@ -50,6 +68,9 @@ export async function checkImageSafety(imageBytes: Buffer): Promise<ImageSafetyR
   if (!client) {
     return { blocked: false };
   }
+  if (!isJpegOrPng(imageBytes)) {
+    return { blocked: true, reason: UNCHECKABLE_REASON };
+  }
 
   let labels;
   try {
@@ -66,6 +87,11 @@ export async function checkImageSafety(imageBytes: Buffer): Promise<ImageSafetyR
       );
     }
   } catch (err) {
+    // These mean this particular photo can't be read, not that the service
+    // is down, so it's turned away rather than stored unchecked.
+    if (err instanceof InvalidImageFormatException || err instanceof ImageTooLargeException) {
+      return { blocked: true, reason: UNCHECKABLE_REASON };
+    }
     console.error("Rekognition request failed:", err);
     return { blocked: false };
   }
