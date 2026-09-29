@@ -52,7 +52,7 @@ export default function TeamManager({ initialUsers }: { initialUsers: UserRow[] 
       <div className="relative">
         <svg
           viewBox="0 0 24 24"
-          className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+          className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500 dark:text-slate-400"
           fill="none"
           stroke="currentColor"
           strokeWidth="2"
@@ -100,7 +100,7 @@ export default function TeamManager({ initialUsers }: { initialUsers: UserRow[] 
                       College admin
                     </span>
                   ) : (
-                    <span className="text-xs text-slate-400 dark:text-slate-500">Student</span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400">Student</span>
                   )}
                 </td>
                 <td className="px-4 py-2.5 text-right">
@@ -125,7 +125,7 @@ export default function TeamManager({ initialUsers }: { initialUsers: UserRow[] 
             ))}
             {users.length === 0 && !loading && (
               <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-xs text-slate-400 dark:text-slate-500">
+                <td colSpan={4} className="px-4 py-8 text-center text-xs text-slate-500 dark:text-slate-400">
                   No students match &ldquo;{query}&rdquo;.
                 </td>
               </tr>

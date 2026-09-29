@@ -192,7 +192,7 @@ export function DonutChart({ data }: { data: { name: string; value: number; colo
         </ResponsiveContainer>
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
           <span className="text-xl font-bold tabular-nums text-slate-900 dark:text-slate-100">{total}</span>
-          <span className="text-[10px] text-slate-400 dark:text-slate-500">total</span>
+          <span className="text-[10px] text-slate-500 dark:text-slate-400">total</span>
         </div>
       </div>
       <ul className="min-w-0 flex-1 space-y-1.5">

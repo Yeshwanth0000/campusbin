@@ -13,7 +13,10 @@ const STEPS = [
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mx-auto flex min-h-[calc(100vh-64px)] max-w-4xl items-center px-4 py-10">
+    // svh, not vh: on phones 100vh is the height with the browser bar
+    // hidden, so a "fills the screen" page was taller than the screen and
+    // scrolled with nothing below. 4.5rem clears the header at every width.
+    <div className="mx-auto flex min-h-[calc(100svh-4.5rem)] max-w-4xl items-center px-4 py-10">
       <div className="grid w-full animate-auth-card-in overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-900/5 motion-reduce:animate-none dark:border-slate-800 dark:bg-slate-900 sm:grid-cols-2">
         {/* Fixed dark gradient-mesh panel — deliberately doesn't follow site
             theme, same way a brand hero panel stays put regardless of light

@@ -22,7 +22,13 @@ export default function ToastContainer() {
     function handler(e: Event) {
       const { message, type } = (e as CustomEvent<{ message: string; type: ToastType }>).detail;
       const id = ++counter;
-      setToasts((prev) => [...prev, { id, message, type, leaving: false }]);
+      // An identical toast that's still on screen already says it — skip the
+      // duplicate (a component mounting twice, or a quick double click).
+      setToasts((prev) =>
+        prev.some((t) => t.message === message && t.type === type && !t.leaving)
+          ? prev
+          : [...prev, { id, message, type, leaving: false }]
+      );
       setTimeout(() => dismiss(id), 3000);
     }
     window.addEventListener("app:toast", handler);
@@ -32,7 +38,7 @@ export default function ToastContainer() {
   if (toasts.length === 0) return null;
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-20 z-50 flex flex-col items-center gap-2 px-4 sm:bottom-6">
+    <div className="pointer-events-none fixed inset-x-0 bottom-20 z-50 flex flex-col items-center gap-2 px-4 lg:bottom-6">
       {toasts.map((t) => (
         <div
           key={t.id}

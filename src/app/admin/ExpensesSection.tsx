@@ -164,14 +164,14 @@ export default function ExpensesSection({ initialExpenses }: { initialExpenses: 
                 <p className="text-xs text-slate-500 dark:text-slate-400">Total spent ({c})</p>
                 <p className="text-lg font-bold tabular-nums text-slate-900 dark:text-slate-100">{money(totalsByCurrency[c], c)}</p>
                 {annualRecurringByCurrency[c] > 0 && (
-                  <p className="text-[11px] text-slate-400 dark:text-slate-500">
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
                     {money(annualRecurringByCurrency[c], c)}/yr recurring
                   </p>
                 )}
               </div>
             ))
           ) : (
-            <p className="text-sm text-slate-400 dark:text-slate-500">Nothing logged yet.</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Nothing logged yet.</p>
           )}
         </div>
         <button
@@ -293,7 +293,7 @@ export default function ExpensesSection({ initialExpenses }: { initialExpenses: 
         <div className="mt-6 grid gap-4 lg:grid-cols-2">
           {currencies.map((c) => (
             <div key={c}>
-              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 By category ({c})
               </p>
               <HBarChart
@@ -308,7 +308,7 @@ export default function ExpensesSection({ initialExpenses }: { initialExpenses: 
         <div className="mt-6 overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-slate-200/70 text-left text-xs font-semibold uppercase tracking-wide text-slate-400 dark:border-slate-800/70 dark:text-slate-500">
+              <tr className="border-b border-slate-200/70 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:border-slate-800/70 dark:text-slate-400">
                 <th className="py-2 pr-3">Date</th>
                 <th className="py-2 pr-3">Description</th>
                 <th className="py-2 pr-3">Category</th>
@@ -330,7 +330,7 @@ export default function ExpensesSection({ initialExpenses }: { initialExpenses: 
                   </td>
                   <td className="py-2 pr-3">
                     {e.is_recurring && (
-                      <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium capitalize text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                      <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium capitalize text-slate-600 dark:bg-slate-800 dark:text-slate-400">
                         {e.recurring_interval}
                       </span>
                     )}
@@ -340,7 +340,7 @@ export default function ExpensesSection({ initialExpenses }: { initialExpenses: 
                       <button
                         type="button"
                         onClick={() => startEdit(e)}
-                        className="text-xs font-medium text-slate-400 hover:text-brand dark:text-slate-500 dark:hover:text-brand"
+                        className="text-xs font-medium text-slate-500 hover:text-brand dark:text-slate-400 dark:hover:text-brand"
                       >
                         Edit
                       </button>
@@ -348,7 +348,7 @@ export default function ExpensesSection({ initialExpenses }: { initialExpenses: 
                         type="button"
                         disabled={isPending && deletingId === e.id}
                         onClick={() => handleDelete(e.id)}
-                        className="text-xs font-medium text-slate-400 hover:text-rose-600 disabled:opacity-50 dark:text-slate-500 dark:hover:text-rose-400"
+                        className="text-xs font-medium text-slate-500 hover:text-rose-600 disabled:opacity-50 dark:text-slate-400 dark:hover:text-rose-400"
                       >
                         {isPending && deletingId === e.id ? "…" : "Remove"}
                       </button>

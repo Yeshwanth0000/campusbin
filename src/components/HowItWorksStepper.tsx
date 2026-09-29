@@ -69,7 +69,7 @@ export default function HowItWorksStepper() {
                   {step.title}
                 </span>
                 {active === i && (
-                  <span className="mt-0.5 block text-xs text-slate-600 dark:text-slate-400">
+                  <span className="mt-0.5 block text-xs text-slate-600 dark:text-slate-300">
                     {step.description}
                   </span>
                 )}
@@ -87,10 +87,10 @@ function StepIllustration({ step }: { step: number }) {
     return (
       <div className="w-48 rounded-lg bg-white p-3 shadow-md">
         <div className="h-2 w-16 rounded bg-slate-200" />
-        <div className="mt-2 h-8 rounded-md border border-slate-200 px-2 text-[10px] leading-8 text-slate-400">
+        <div className="mt-2 h-8 rounded-md border border-slate-200 px-2 text-[10px] leading-8 text-slate-500">
           you@college.ac.in
         </div>
-        <div className="mt-2 flex items-center gap-1 text-[10px] font-semibold text-emerald-600">
+        <div className="mt-2 flex items-center gap-1 text-[10px] font-semibold text-emerald-700">
           <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-emerald-500 text-white">
             ✓
           </span>

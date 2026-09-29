@@ -45,11 +45,12 @@ export const metadata: Metadata = {
   },
 };
 
+// A single tag, rewritten by ThemeInitScript/ThemeToggle to match the
+// site's own theme. The old pair keyed on prefers-color-scheme followed the
+// OS instead, so a dark-mode phone got a near-black browser bar over the
+// (default light) page, and a dark-theme user got a white bar.
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#020617" },
-  ],
+  themeColor: "#ffffff",
 };
 
 // Tells Google what CampusBin actually is (a specific student marketplace
@@ -100,7 +101,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           Skip to content
         </a>
         <Header />
-        <main id="main-content" className="flex-1 pb-16 lg:pb-0">
+        <main id="main-content" className="flex-1">
           <PageTransition>{children}</PageTransition>
         </main>
         <ToastContainer />

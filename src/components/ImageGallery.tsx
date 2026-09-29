@@ -10,7 +10,7 @@ export default function ImageGallery({ images, title }: { images: string[]; titl
 
   if (images.length === 0) {
     return (
-      <div className="flex aspect-square w-full items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-600">
+      <div className="flex aspect-square w-full items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
         No photo
       </div>
     );

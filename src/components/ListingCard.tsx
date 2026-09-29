@@ -68,7 +68,7 @@ export default function ListingCard({
             className="object-cover transition-transform duration-500 ease-out group-hover:scale-110 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-sm text-slate-400 dark:text-slate-600">
+          <div className="flex h-full items-center justify-center text-sm text-slate-600 dark:text-slate-400">
             No photo
           </div>
         )}
@@ -157,7 +157,7 @@ export default function ListingCard({
           {categoryName && (
             <span
               title={categoryName}
-              className="hidden min-w-0 truncate rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-500 dark:bg-slate-800 dark:text-slate-400 lg:inline-block"
+              className="hidden min-w-0 truncate rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-400 lg:inline-block"
             >
               {categoryName}
             </span>

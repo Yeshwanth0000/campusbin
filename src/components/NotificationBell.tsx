@@ -32,6 +32,9 @@ export default function NotificationBell({
   const [pushBusy, setPushBusy] = useState(false);
   const [pushError, setPushError] = useState<string | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  // Measured on open: the header is 12px lower while it floats, so a fixed
+  // top-16 overlapped its bottom edge whenever the page was scrolled.
+  const [panelTop, setPanelTop] = useState(64);
 
   useEffect(() => {
     if (!pushSupported()) {
@@ -114,7 +117,11 @@ export default function NotificationBell({
     <div ref={panelRef} className="relative">
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => {
+          const headerBottom = panelRef.current?.closest("header")?.getBoundingClientRect().bottom;
+          if (!open && headerBottom) setPanelTop(Math.round(headerBottom) + 8);
+          setOpen((o) => !o);
+        }}
         aria-label={localUnreadCount > 0 ? `Notifications, ${localUnreadCount} unread` : "Notifications"}
         aria-expanded={open}
         className="relative flex h-9 w-9 items-center justify-center rounded-md text-slate-500 transition hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
@@ -140,7 +147,8 @@ export default function NotificationBell({
             <div
               role="dialog"
               aria-label="Notifications"
-              className="fixed left-4 right-4 top-16 z-50 origin-top animate-notif-panel-in overflow-hidden rounded-2xl border border-slate-200/70 bg-white/90 shadow-xl shadow-slate-900/10 backdrop-blur-xl motion-reduce:animate-none dark:border-slate-800/70 dark:bg-slate-900/90 sm:left-auto sm:right-4 sm:top-16 sm:w-80 sm:origin-top-right"
+              style={{ top: panelTop }}
+              className="fixed left-4 right-4 z-50 origin-top animate-notif-panel-in overflow-hidden rounded-2xl border border-slate-200/70 bg-white/90 shadow-xl shadow-slate-900/10 backdrop-blur-xl motion-reduce:animate-none dark:border-slate-800/70 dark:bg-slate-900/90 sm:left-auto sm:right-4 sm:w-80 sm:origin-top-right"
             >
               <div className="flex items-center justify-between border-b border-slate-100/70 px-4 py-3 dark:border-slate-800/70">
                 <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">Notifications</span>
@@ -186,7 +194,7 @@ export default function NotificationBell({
 
               <div className="max-h-96 overflow-y-auto">
                 {notifications.length === 0 ? (
-                  <p className="px-4 py-8 text-center text-sm text-slate-400 dark:text-slate-500">
+                  <p className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-400">
                     No notifications yet.
                   </p>
                 ) : (
@@ -220,7 +228,7 @@ export default function NotificationBell({
                             <p className="mt-0.5 truncate text-xs text-slate-500 dark:text-slate-400">{subtitle}</p>
                           )}
                         </div>
-                        <span className="shrink-0 whitespace-nowrap text-[11px] text-slate-400 dark:text-slate-500">
+                        <span className="shrink-0 whitespace-nowrap text-[11px] text-slate-500 dark:text-slate-400">
                           {timeAgo(n.created_at)}
                         </span>
                       </Link>

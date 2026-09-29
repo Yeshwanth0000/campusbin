@@ -89,7 +89,7 @@ export default function AboutPage() {
               Support CampusBin
             </a>
           ) : (
-            <p className="mt-4 text-xs italic text-slate-400 dark:text-slate-500">
+            <p className="mt-4 text-xs italic text-slate-500 dark:text-slate-400">
               (Support link coming soon.)
             </p>
           )}

@@ -78,16 +78,18 @@ export default async function ChatDetailPage({
     conversation.buyer?.id === user.id ? conversation.seller : conversation.buyer;
 
   return (
-    // These constants are the real chrome this page sits between, measured
-    // rather than guessed. Phones: the site header hides itself on an open
-    // conversation (FloatingHeaderShell), so only the 63px bottom nav is
-    // left. sm: 62px header + 63px nav. lg: 62px header, no bottom nav.
+    // What this page sits between. Phones: the site header hides itself on
+    // an open conversation (FloatingHeaderShell), leaving only the 4rem
+    // #main-content padding reserved for the bottom nav (globals.css). sm:
+    // the ~63px header plus that 4rem. lg: the header only, no bottom nav.
+    // Matching the 4rem reservation exactly matters: the old 63px left the
+    // page 1px taller than the screen, so it scrolled behind the thread.
     // dvh, not vh: vh is the mobile browser's tallest possible viewport
     // (address bar collapsed), so with the address bar visible the container
     // was taller than what's actually on screen — pushing the message input
     // below the fold until the page was scrolled. dvh tracks the real,
     // currently-visible viewport as the address bar shows or hides.
-    <div className="mx-auto flex h-[calc(100dvh-63px)] w-full max-w-none flex-col px-3 py-3 sm:h-[calc(100dvh-126px)] sm:max-w-[min(94vw,72rem)] sm:px-4 sm:py-4 lg:h-[calc(100dvh-64px)]">
+    <div className="mx-auto flex h-[calc(100dvh-4rem)] w-full max-w-none flex-col px-3 py-3 sm:h-[calc(100dvh-8rem)] sm:max-w-[min(94vw,72rem)] sm:px-4 sm:py-4 lg:h-[calc(100dvh-4rem)]">
       <div className="flex items-center gap-3 border-b border-slate-200 pb-3 dark:border-slate-800 sm:items-start">
         {/* Icon back-button replaces the "All chats" text line on phones —
             WhatsApp-style single-row header instead of two stacked lines,

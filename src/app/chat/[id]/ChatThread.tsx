@@ -254,7 +254,7 @@ export default function ChatThread({
               {listing.images?.[0] ? (
                 <Image src={listing.images[0]} alt="" fill sizes="56px" className="object-cover" />
               ) : (
-                <div className="flex h-full items-center justify-center text-[10px] text-slate-400 dark:text-slate-600">
+                <div className="flex h-full items-center justify-center text-[10px] text-slate-600 dark:text-slate-400">
                   No photo
                 </div>
               )}
@@ -296,7 +296,7 @@ export default function ChatThread({
             <div key={m.id}>
               {showDaySeparator && (
                 <div className="flex justify-center py-2">
-                  <span className="rounded-full bg-slate-200/70 px-3 py-0.5 text-[11px] font-medium text-slate-500 dark:bg-slate-800/80 dark:text-slate-400">
+                  <span className="rounded-full bg-slate-200/70 px-3 py-0.5 text-[11px] font-medium text-slate-600 dark:bg-slate-800/80 dark:text-slate-300">
                     {dayLabel(m.created_at)}
                   </span>
                 </div>
@@ -319,7 +319,7 @@ export default function ChatThread({
                   {time && (
                     <span
                       className={`float-right ml-2 mt-1 text-[10px] leading-none ${
-                        isMine ? "text-white/60" : "text-slate-400 dark:text-slate-500"
+                        isMine ? "text-white/60" : "text-slate-500 dark:text-slate-400"
                       }`}
                     >
                       {time}
@@ -327,7 +327,7 @@ export default function ChatThread({
                   )}
                 </div>
                 {isLastMine && (
-                  <span className="mt-0.5 mr-1 text-[11px] text-slate-400 dark:text-slate-500">
+                  <span className="mt-0.5 mr-1 text-[11px] text-slate-500 dark:text-slate-400">
                     {m.pending ? "Sending…" : m.read_at ? "Seen" : "Sent"}
                   </span>
                 )}
@@ -337,7 +337,7 @@ export default function ChatThread({
         })}
         {otherTyping && (
           <div className="flex animate-message-in items-start motion-reduce:animate-none">
-            <div className="flex items-center gap-1 rounded-2xl bg-white px-3.5 py-3 text-slate-400 shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:text-slate-500 dark:ring-slate-700">
+            <div className="flex items-center gap-1 rounded-2xl bg-white px-3.5 py-3 text-slate-500 shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:ring-slate-700">
               <span className="typing-dot motion-reduce:animate-none" />
               <span className="typing-dot motion-reduce:animate-none [animation-delay:0.15s]" />
               <span className="typing-dot motion-reduce:animate-none [animation-delay:0.3s]" />

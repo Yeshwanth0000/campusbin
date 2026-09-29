@@ -45,7 +45,7 @@ export default function NotificationRow({
             <p className="mt-0.5 truncate text-sm text-slate-500 dark:text-slate-400">{subtitle}</p>
           )}
         </div>
-        <span className="shrink-0 whitespace-nowrap text-xs text-slate-400 dark:text-slate-500">
+        <span className="shrink-0 whitespace-nowrap text-xs text-slate-500 dark:text-slate-400">
           {timeAgo(notification.created_at)}
         </span>
       </Link>

@@ -67,7 +67,7 @@ export default function SafetyMenu({
         aria-label="Safety options"
         aria-haspopup="menu"
         aria-expanded={open}
-        className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-300"
+        className="flex h-8 w-8 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-300"
       >
         <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
           <circle cx="12" cy="5" r="1.5" />

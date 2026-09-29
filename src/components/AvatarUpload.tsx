@@ -109,7 +109,7 @@ export default function AvatarUpload({
           type="button"
           onClick={handleRemove}
           disabled={isPending}
-          className="absolute -bottom-1 left-1/2 -translate-x-1/2 translate-y-full whitespace-nowrap pt-1 text-[11px] font-medium text-slate-400 opacity-100 transition-opacity hover:text-red-500 disabled:pointer-events-none sm:opacity-0 sm:focus-visible:opacity-100 sm:group-hover:opacity-100"
+          className="absolute -bottom-1 left-1/2 -translate-x-1/2 translate-y-full whitespace-nowrap pt-1 text-[11px] font-medium text-slate-500 dark:text-slate-400 opacity-100 transition-opacity hover:text-red-500 disabled:pointer-events-none sm:opacity-0 sm:focus-visible:opacity-100 sm:group-hover:opacity-100"
         >
           Remove
         </button>

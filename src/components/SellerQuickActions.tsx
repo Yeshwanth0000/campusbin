@@ -78,7 +78,7 @@ export default function SellerQuickActions({
         aria-label="Listing actions"
         aria-expanded={open}
         aria-haspopup="menu"
-        className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-slate-600 shadow-sm backdrop-blur transition hover:text-brand disabled:pointer-events-none disabled:opacity-60 dark:bg-slate-900/80 dark:text-slate-300"
+        className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-slate-600 shadow-sm backdrop-blur transition hover:text-brand disabled:pointer-events-none disabled:opacity-60 dark:bg-slate-900/80 dark:text-slate-300"
       >
         {isPending ? (
           <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent motion-reduce:animate-none" />
@@ -94,7 +94,7 @@ export default function SellerQuickActions({
       {open && (
         <div
           role="menu"
-          className="absolute right-0 top-8 z-10 w-36 overflow-hidden rounded-lg border border-slate-200 bg-white py-1 text-sm shadow-lg dark:border-slate-800 dark:bg-slate-900"
+          className="absolute right-0 top-9 z-10 w-36 overflow-hidden rounded-lg border border-slate-200 bg-white py-1 text-sm shadow-lg dark:border-slate-800 dark:bg-slate-900"
         >
           {status === "available" && (
             <>

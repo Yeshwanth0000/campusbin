@@ -45,19 +45,24 @@ export default function FloatingHeaderShell({ children }: { children: ReactNode 
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // The floating look must not change this sticky box's height: it's in the
+  // page flow, so growing it pushed everything below down ~13px (animated)
+  // every time scrolling started or returned to the top. The 12px drop is a
+  // translate, and the border is 1px on all sides in both states with only
+  // its color changing. Hiding clears the header's offset and its shadow.
   return (
     <div
       className={`sticky top-0 z-30 transition-all duration-300 ease-out ${
         inConversation ? "hidden sm:block" : ""
-      } ${scrolled ? "px-3 pt-3 sm:px-6" : "px-0 pt-0"} ${
-        hidden ? "-translate-y-full" : "translate-y-0"
+      } ${scrolled ? "px-3 sm:px-6" : "px-0"} ${
+        hidden ? "-translate-y-[calc(100%+2rem)]" : "translate-y-0"
       }`}
     >
       <header
-        className={`mx-auto w-full max-w-none transition-all duration-300 ease-out sm:max-w-[min(94vw,96rem)] ${
+        className={`mx-auto w-full max-w-none border transition-all duration-300 ease-out sm:max-w-[min(94vw,96rem)] ${
           scrolled
-            ? "rounded-2xl border border-slate-200/70 bg-white shadow-lg shadow-slate-900/10 dark:border-slate-800/60 dark:bg-slate-950 dark:shadow-black/30 lg:bg-white/75 lg:backdrop-blur-xl lg:dark:bg-slate-950/60"
-            : "rounded-none border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950 lg:bg-white/95 lg:backdrop-blur lg:dark:bg-slate-950/95"
+            ? "translate-y-3 rounded-2xl border-slate-200/70 bg-white shadow-lg shadow-slate-900/10 dark:border-slate-800/60 dark:bg-slate-950 dark:shadow-black/30 lg:bg-white/75 lg:backdrop-blur-xl lg:dark:bg-slate-950/60"
+            : "translate-y-0 rounded-none border-transparent border-b-slate-200 bg-white dark:border-transparent dark:border-b-slate-800 dark:bg-slate-950 lg:bg-white/95 lg:backdrop-blur lg:dark:bg-slate-950/95"
         }`}
       >
         {children}

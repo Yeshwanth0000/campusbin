@@ -178,7 +178,7 @@ export default async function HomePage() {
               </p>
             </div>
             <div>
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 Quick Links
               </h3>
               <ul className="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-400">
@@ -194,7 +194,7 @@ export default async function HomePage() {
               </ul>
             </div>
             <div>
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 Support
               </h3>
               <ul className="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-400">

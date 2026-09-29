@@ -101,7 +101,7 @@ export default function LoadMore({
             style={{ width: `${pct}%` }}
           />
         </div>
-        <p className="text-xs text-slate-400 dark:text-slate-500">
+        <p className="text-xs text-slate-500 dark:text-slate-400">
           {shown} of {total}
         </p>
       </div>

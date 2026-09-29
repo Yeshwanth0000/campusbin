@@ -19,7 +19,7 @@ export default function GlobalError({
 
   return (
     <html lang="en">
-      <body className="flex min-h-screen items-center justify-center bg-white px-4 antialiased">
+      <body className="flex min-h-dvh items-center justify-center bg-white px-4 antialiased">
         <div className="flex max-w-md flex-col items-center text-center">
           <p className="text-sm font-semibold text-indigo-600">Something went wrong</p>
           <h1 className="mt-2 text-2xl font-bold text-slate-900">CampusBin hit a snag</h1>

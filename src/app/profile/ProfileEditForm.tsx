@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useActionState, useState } from "react";
 import { updateProfile, type ProfileResult } from "@/app/actions/profile";
 import { toast } from "@/lib/toast";
 import SubmitButton from "@/components/SubmitButton";
@@ -15,19 +15,17 @@ export default function ProfileEditForm({
   hostelOrBranch: string;
 }) {
   const [editing, setEditing] = useState(false);
-  const [state, formAction] = useActionState(updateProfile, initialState);
-  const isFirstRender = useRef(true);
-
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-    if (!state.error) {
+  // Reacting to the save's own result, not to `state` in an effect: an effect
+  // with a skip-the-first-run ref fired "Profile updated." on page load
+  // whenever the component mounted twice (React dev mode, remounts).
+  const [state, formAction] = useActionState(async (prev: ProfileResult, formData: FormData) => {
+    const result = await updateProfile(prev, formData);
+    if (!result.error) {
       toast("Profile updated.");
       setEditing(false);
     }
-  }, [state]);
+    return result;
+  }, initialState);
 
   if (!editing) {
     return (

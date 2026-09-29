@@ -209,7 +209,7 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
               className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
                 granularity === g.value
                   ? "bg-white text-brand shadow-sm dark:bg-slate-950 dark:text-brand"
-                  : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+                  : "text-slate-600 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
               }`}
             >
               {g.label}
@@ -365,7 +365,7 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-slate-200/70 text-left text-xs font-semibold uppercase tracking-wide text-slate-400 dark:border-slate-800/70 dark:text-slate-500">
+                  <tr className="border-b border-slate-200/70 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:border-slate-800/70 dark:text-slate-400">
                     <th className="py-2 pr-3">College</th>
                     <th className="py-2 pr-3 text-right">Users</th>
                     <th className="py-2 pr-3 text-right">Listings</th>
@@ -440,7 +440,7 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
             <ol className="divide-y divide-slate-100 dark:divide-slate-800">
               {stats.top_sellers.map((s, i) => (
                 <li key={`${s.name}-${i}`} className="flex items-center gap-3 py-2">
-                  <span className="w-4 shrink-0 text-right text-xs tabular-nums text-slate-400">{i + 1}</span>
+                  <span className="w-4 shrink-0 text-right text-xs tabular-nums text-slate-500 dark:text-slate-400">{i + 1}</span>
                   <span className="min-w-0 flex-1 truncate text-sm text-slate-800 dark:text-slate-200">{s.name}</span>
                   <span className="shrink-0 text-xs tabular-nums text-slate-500 dark:text-slate-400">{s.views} views</span>
                   <span className="w-10 shrink-0 text-right text-sm font-semibold tabular-nums text-slate-900 dark:text-slate-100">
@@ -468,17 +468,17 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
           <ol className="divide-y divide-slate-100 dark:divide-slate-800">
             {stats.top_listings.map((l, i) => (
               <li key={l.id} className="flex items-center gap-3 py-2.5">
-                <span className="w-5 shrink-0 text-right text-xs tabular-nums text-slate-400 dark:text-slate-500">{i + 1}</span>
+                <span className="w-5 shrink-0 text-right text-xs tabular-nums text-slate-500 dark:text-slate-400">{i + 1}</span>
                 <Link href={`/listings/${l.id}`} className="min-w-0 flex-1 truncate text-sm text-slate-800 hover:text-brand dark:text-slate-200">
                   {l.title}
                 </Link>
                 {l.status !== "available" && (
-                  <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium capitalize text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                  <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium capitalize text-slate-600 dark:bg-slate-800 dark:text-slate-400">
                     {l.status}
                   </span>
                 )}
                 <span className="shrink-0 text-sm font-semibold tabular-nums text-slate-900 dark:text-slate-100">{l.view_count}</span>
-                <span className="shrink-0 text-xs text-slate-400 dark:text-slate-500">views</span>
+                <span className="shrink-0 text-xs text-slate-500 dark:text-slate-400">views</span>
               </li>
             ))}
           </ol>
@@ -545,7 +545,7 @@ function FunnelRow({
       <div className="mb-1 flex items-baseline justify-between gap-3">
         <span className="text-sm text-slate-700 dark:text-slate-300">{label}</span>
         <span className="text-sm font-semibold tabular-nums text-slate-900 dark:text-slate-100">
-          {value} <span className="text-xs font-normal text-slate-400 dark:text-slate-500">· {caption}</span>
+          {value} <span className="text-xs font-normal text-slate-500 dark:text-slate-400">· {caption}</span>
         </span>
       </div>
       <div className="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
@@ -578,7 +578,7 @@ function Compact({
       >
         {value.toLocaleString("en-IN")}
       </p>
-      {sub && <p className="text-[11px] text-slate-400 dark:text-slate-500">{sub}</p>}
+      {sub && <p className="text-[11px] text-slate-500 dark:text-slate-400">{sub}</p>}
     </div>
   );
 }
@@ -628,7 +628,7 @@ function KpiCard({
       <div className="mt-1 flex items-center gap-1.5">
         <span
           className={`inline-flex items-center gap-0.5 text-xs font-semibold ${
-            up ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
+            up ? "text-emerald-700 dark:text-emerald-400" : "text-rose-700 dark:text-rose-400"
           }`}
         >
           <svg viewBox="0 0 12 12" className={`h-3 w-3 ${up ? "" : "rotate-180"}`} fill="currentColor">
@@ -636,7 +636,7 @@ function KpiCard({
           </svg>
           {Math.abs(delta)}%
         </span>
-        <span className="text-xs text-slate-400 dark:text-slate-500">
+        <span className="text-xs text-slate-500 dark:text-slate-400">
           {current} {rangeLabel.toLowerCase()}
         </span>
       </div>
@@ -669,7 +669,7 @@ function HourHeatmap({ points }: { points: HourPoint[] }) {
         })}
       </div>
       <style>{`[data-empty="true"] { background-color: rgba(148,163,184,0.15); }`}</style>
-      <div className="mt-1.5 flex justify-between text-[10px] text-slate-400 dark:text-slate-500">
+      <div className="mt-1.5 flex justify-between text-[10px] text-slate-500 dark:text-slate-400">
         <span>12 am</span>
         <span>12 pm</span>
         <span>11 pm</span>

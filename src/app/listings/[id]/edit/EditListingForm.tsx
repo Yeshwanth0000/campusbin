@@ -192,7 +192,7 @@ export default function EditListingForm({
 
       <div className="rounded-md border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-900/50">
         <label htmlFor="phoneNumber" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-          Phone number <span className="font-normal text-slate-400">(optional)</span>
+          Phone number <span className="font-normal text-slate-500 dark:text-slate-400">(optional)</span>
         </label>
         <input
           id="phoneNumber"

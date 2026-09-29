@@ -1,3 +1,5 @@
+export const metadata = { title: "Check your inbox — CampusBin" };
+
 export default function VerifyEmailPage() {
   return (
     <div className="mx-auto flex max-w-md flex-col items-center justify-center px-4 py-24 text-center">

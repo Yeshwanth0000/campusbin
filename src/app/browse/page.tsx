@@ -328,7 +328,7 @@ export default async function BrowsePage({
                   placeholder="Min"
                   className="w-full rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-900 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
                 />
-                <span className="text-slate-400 dark:text-slate-500">–</span>
+                <span className="text-slate-500 dark:text-slate-400">–</span>
                 <input
                   type="number"
                   name="price_max"
@@ -347,7 +347,7 @@ export default async function BrowsePage({
             </form>
             <Link
               href={buildUrl({ price_min: undefined, price_max: undefined })}
-              className="mt-2 inline-block text-xs font-medium text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300"
+              className="mt-2 inline-block text-xs font-medium text-slate-500 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300"
             >
               Clear price filter
             </Link>
@@ -393,7 +393,7 @@ export default async function BrowsePage({
                 </Link>
                 {subField.optionGroups!.map((group) => (
                   <div key={group.label} className="pt-1">
-                    <p className="px-2 pb-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-400 dark:text-slate-500">
+                    <p className="px-2 pb-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                       {group.label}
                     </p>
                     {group.options.map((opt) => (
@@ -459,7 +459,7 @@ export default async function BrowsePage({
           {hasExtraFilters && (
             <Link
               href={buildUrl({ condition: undefined, posted: undefined })}
-              className="inline-block text-xs font-medium text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300"
+              className="inline-block text-xs font-medium text-slate-500 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300"
             >
               Clear condition/date filters
             </Link>
@@ -553,7 +553,7 @@ export default async function BrowsePage({
                 <FilterGroup label="Price range">
                   <div className="flex items-center gap-3">
                     <div className="relative flex-1">
-                      <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-slate-400">
+                      <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-slate-500 dark:text-slate-400">
                         ₹
                       </span>
                       <input
@@ -568,7 +568,7 @@ export default async function BrowsePage({
                     </div>
                     <span className="text-slate-300 dark:text-slate-600">–</span>
                     <div className="relative flex-1">
-                      <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-slate-400">
+                      <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-slate-500 dark:text-slate-400">
                         ₹
                       </span>
                       <input
@@ -701,7 +701,7 @@ export default async function BrowsePage({
               )}
               <Link
                 href="/browse"
-                className="ml-1 text-xs font-medium text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300"
+                className="ml-1 text-xs font-medium text-slate-500 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-300"
               >
                 Clear all
               </Link>
@@ -769,7 +769,7 @@ export default async function BrowsePage({
               never tell you — worth saying out loud, but only once the list
               was long enough for the question to come up. */}
           {!hasMore && shown > PAGE_SIZE && (
-            <p className="mt-6 text-center text-xs text-slate-400 dark:text-slate-500">
+            <p className="mt-6 text-center text-xs text-slate-500 dark:text-slate-400">
               You&rsquo;ve seen all {total} listing{total === 1 ? "" : "s"}.
             </p>
           )}
@@ -803,7 +803,7 @@ export default async function BrowsePage({
 function FilterGroup({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="border-b border-slate-100 py-5 first:pt-1 dark:border-slate-800">
-      <h3 className="mb-3 text-[13px] font-bold uppercase tracking-wide text-slate-400 dark:text-slate-500">
+      <h3 className="mb-3 text-[13px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
         {label}
       </h3>
       {children}

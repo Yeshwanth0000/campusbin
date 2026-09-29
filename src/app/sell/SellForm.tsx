@@ -148,8 +148,8 @@ export default function SellForm({
                   i === step
                     ? "text-brand"
                     : i < step
-                      ? "text-slate-500 dark:text-slate-400"
-                      : "text-slate-400 dark:text-slate-600"
+                      ? "text-slate-600 dark:text-slate-300"
+                      : "text-slate-500 dark:text-slate-400"
                 }`}
               >
                 {label}
@@ -308,7 +308,7 @@ export default function SellForm({
                 className={`mt-3 rounded-md border border-dashed py-6 text-center text-xs transition-colors ${
                   isDraggingPhoto
                     ? "border-brand bg-brand-light/60 text-brand-dark dark:bg-brand/10 dark:text-brand"
-                    : "border-slate-300 text-slate-400 dark:border-slate-700 dark:text-slate-500"
+                    : "border-slate-300 text-slate-500 dark:border-slate-700 dark:text-slate-400"
                 }`}
               >
                 {isDraggingPhoto ? "Drop to add" : "Drag photos here, or use the picker above — optional, but recommended."}
@@ -410,7 +410,7 @@ export default function SellForm({
 
             <div className="rounded-md border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-900/50">
               <label htmlFor="phoneNumber" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-                Phone number <span className="font-normal text-slate-400">(optional)</span>
+                Phone number <span className="font-normal text-slate-500 dark:text-slate-400">(optional)</span>
               </label>
               <input
                 id="phoneNumber"

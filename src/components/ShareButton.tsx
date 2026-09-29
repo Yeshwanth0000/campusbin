@@ -34,7 +34,7 @@ export default function ShareButton({ title }: { title: string }) {
       type="button"
       onClick={handleShare}
       aria-label="Share this listing"
-      className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-300"
+      className="flex h-8 w-8 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-300"
     >
       <svg
         viewBox="0 0 24 24"

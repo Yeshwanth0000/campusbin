@@ -43,7 +43,7 @@ export default function BottomSheet({
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="animate-sheet-panel-in fixed inset-x-0 bottom-0 z-[100] flex max-h-[85vh] flex-col overflow-hidden rounded-t-3xl border-t border-slate-200 bg-white shadow-2xl shadow-slate-900/25 dark:border-slate-800 dark:bg-slate-900"
+        className="animate-sheet-panel-in fixed inset-x-0 bottom-0 z-[100] flex max-h-[85dvh] flex-col overflow-hidden rounded-t-3xl border-t border-slate-200 bg-white shadow-2xl shadow-slate-900/25 dark:border-slate-800 dark:bg-slate-900"
       >
         <div className="shrink-0 px-5 pb-2 pt-3">
           <div className="mx-auto h-1 w-10 rounded-full bg-slate-300 dark:bg-slate-700" />
@@ -53,7 +53,7 @@ export default function BottomSheet({
               type="button"
               onClick={onClose}
               aria-label={`Close ${title.toLowerCase()}`}
-              className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-300"
+              className="flex h-8 w-8 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-300"
             >
               <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
                 <path strokeLinecap="round" d="M6 6l12 12M18 6L6 18" />

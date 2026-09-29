@@ -50,6 +50,30 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* Solid brand buttons carry white text. The dark theme lightens --brand so
+   brand-colored text reads on dark backgrounds, but white on that lighter
+   indigo is only ~3:1 (~2:1 on hover). Those surfaces keep the light
+   theme's indigo; text-free brand fills (progress bars, tab underlines)
+   keep the lighter shade, which is what shows up on a dark page. */
+.dark .bg-brand.text-white {
+  background-color: #4f46e5;
+}
+.dark .text-white.hover\:bg-brand-dark:hover {
+  background-color: #4338ca;
+}
+
+/* Clearance for the mobile bottom nav, only when it's actually rendered
+   (logged-in users). Unconditional padding left logged-out pages with 64px
+   of dead space and made the login page scroll with nothing to scroll to. */
+body:has([data-bottom-nav]) #main-content {
+  padding-bottom: 4rem;
+}
+@media (min-width: 1024px) {
+  body:has([data-bottom-nav]) #main-content {
+    padding-bottom: 0;
+  }
+}
+
 /* Android's overscroll stretch/bounce moves the whole page, including
    sticky and fixed bars, so they wobble against the content at the top and
    bottom edges — most visible in the installed Play Store app. */

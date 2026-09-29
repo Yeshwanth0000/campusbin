@@ -105,7 +105,7 @@ export default async function ChatListPage() {
                     </p>
                   </div>
                   {last && (
-                    <span className="shrink-0 whitespace-nowrap text-[11px] text-slate-400 dark:text-slate-500">
+                    <span className="shrink-0 whitespace-nowrap text-[11px] text-slate-500 dark:text-slate-400">
                       {timeAgo(last.created_at)}
                     </span>
                   )}
