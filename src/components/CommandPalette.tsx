@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { categoryIcon } from "@/lib/categoryIcons";
 import { addRecentSearch, clearRecentSearches, getRecentSearches } from "@/lib/recentSearches";
@@ -10,6 +10,15 @@ import { announceOverlayOpen, onOtherOverlayOpen, onSearchOpenRequest } from "@/
 import { quickSearchListings, type QuickSearchResult } from "@/app/actions/listings";
 
 const OVERLAY_ID = "search";
+
+// navigator.platform never changes, so there's nothing to subscribe to.
+function subscribeToNothing() {
+  return () => {};
+}
+
+function isMacPlatform() {
+  return /Mac|iPhone|iPod|iPad/i.test(navigator.platform);
+}
 
 type Category = { id: string; name: string; slug: string };
 
@@ -25,19 +34,24 @@ export default function CommandPalette({ categories }: { categories: Category[] 
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
   const [recent, setRecent] = useState<string[]>([]);
-  const [isMac, setIsMac] = useState(false);
+  const isMac = useSyncExternalStore(subscribeToNothing, isMacPlatform, () => false);
   const [listingMatches, setListingMatches] = useState<QuickSearchResult[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setIsMac(/Mac|iPhone|iPod|iPad/i.test(navigator.platform));
-  }, []);
 
   const close = useCallback(() => {
     setOpen(false);
     setQuery("");
     setActiveIndex(0);
+    setListingMatches([]);
+  }, []);
+
+  // Recent searches live in localStorage, so they're read each time the
+  // palette opens rather than while rendering.
+  const openPalette = useCallback(() => {
+    setRecent(getRecentSearches());
+    setActiveIndex(0);
+    setOpen(true);
   }, []);
 
   useEffect(() => {
@@ -45,6 +59,8 @@ export default function CommandPalette({ categories }: { categories: Category[] 
       const meta = e.metaKey || e.ctrlKey;
       if (meta && e.key.toLowerCase() === "k") {
         e.preventDefault();
+        setRecent(getRecentSearches());
+        setActiveIndex(0);
         setOpen((prev) => !prev);
       }
     }
@@ -55,7 +71,6 @@ export default function CommandPalette({ categories }: { categories: Category[] 
   useEffect(() => {
     if (!open) return;
     announceOverlayOpen(OVERLAY_ID);
-    setRecent(getRecentSearches());
     // Focus immediately rather than only via requestAnimationFrame — some
     // environments never fire that callback, which left the dialog open
     // but the input unfocused, so typing right after opening did nothing.
@@ -76,15 +91,13 @@ export default function CommandPalette({ categories }: { categories: Category[] 
 
   useEffect(() => onOtherOverlayOpen(OVERLAY_ID, close), [close]);
 
-  useEffect(() => onSearchOpenRequest(() => setOpen(true)), []);
+  useEffect(() => onSearchOpenRequest(openPalette), [openPalette]);
 
   const trimmed = query.trim();
 
   useEffect(() => {
-    if (!trimmed) {
-      setListingMatches([]);
-      return;
-    }
+    // Emptying the query clears the matches where it happens (onChange, close).
+    if (!trimmed) return;
     let cancelled = false;
     const id = setTimeout(() => {
       quickSearchListings(trimmed).then((matches) => {
@@ -118,10 +131,6 @@ export default function CommandPalette({ categories }: { categories: Category[] 
       ...matchingCategories.map((c): ResultItem => ({ kind: "category", label: c.name, slug: c.slug })),
     ];
   }, [trimmed, recent, categories, listingMatches]);
-
-  useEffect(() => {
-    setActiveIndex(0);
-  }, [query, open]);
 
   useEffect(() => {
     const active = listRef.current?.querySelector('[data-active="true"]');
@@ -167,7 +176,7 @@ export default function CommandPalette({ categories }: { categories: Category[] 
     <>
       <button
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={openPalette}
         className="group hidden w-full max-w-xs items-center gap-2 rounded-full border border-slate-300 bg-slate-50 px-3.5 py-2 text-sm text-slate-500 transition hover:border-brand/50 hover:bg-white hover:text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400 dark:hover:border-brand/40 dark:hover:bg-slate-900/80 dark:hover:text-slate-200 sm:flex"
       >
         <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 text-slate-500 dark:text-slate-400 group-hover:text-brand" fill="none" stroke="currentColor" strokeWidth="2">
@@ -203,7 +212,11 @@ export default function CommandPalette({ categories }: { categories: Category[] 
               <input
                 ref={inputRef}
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                  setActiveIndex(0);
+                  if (!e.target.value.trim()) setListingMatches([]);
+                }}
                 onKeyDown={onInputKeyDown}
                 placeholder="Search listings or jump to a category…"
                 className="flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400 dark:text-slate-100"

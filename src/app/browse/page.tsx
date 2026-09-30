@@ -172,6 +172,7 @@ export default async function BrowsePage({
   }
   const postedOption = POSTED_OPTIONS.find((p) => p.value === posted);
   if (postedOption) {
+    // eslint-disable-next-line react-hooks/purity -- Server Component: this runs once per request, so "now" is simply the request time
     const since = new Date(Date.now() - postedOption.hours * 60 * 60 * 1000);
     query = query.gte("created_at", since.toISOString());
   }

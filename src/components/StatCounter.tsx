@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { usePrefersReducedMotion } from "@/lib/usePrefersReducedMotion";
 
 export default function StatCounter({
   value,
@@ -14,16 +15,12 @@ export default function StatCounter({
   const [display, setDisplay] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
   const started = useRef(false);
+  const reducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
-
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (prefersReducedMotion) {
-      setDisplay(value);
-      return;
-    }
+    // With reduced motion there's no count-up; the value is shown as-is below.
+    if (!el || reducedMotion) return;
 
     function animate() {
       if (started.current) return;
@@ -75,12 +72,12 @@ export default function StatCounter({
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
-  }, [value]);
+  }, [value, reducedMotion]);
 
   return (
     <div ref={ref} className="text-center sm:text-left">
       <div className="text-3xl font-extrabold tracking-tight tabular-nums text-slate-900 dark:text-slate-100 sm:text-4xl">
-        {display}
+        {reducedMotion ? value : display}
         {suffix}
       </div>
       <div className="mt-1 text-sm text-slate-500 dark:text-slate-400">{label}</div>

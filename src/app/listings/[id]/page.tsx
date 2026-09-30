@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { startConversation } from "@/app/actions/chat";
-import { markAsSold, deleteListing, relistListing } from "@/app/actions/listings";
+import { markAsSold, deleteListing } from "@/app/actions/listings";
 import ImageGallery from "@/components/ImageGallery";
 import ListingCard from "@/components/ListingCard";
 import SaveButton from "@/components/SaveButton";
@@ -385,7 +385,7 @@ export default async function ListingDetailPage({
                 listing.status === "available" &&
                 (blockedRow ? (
                   <p className="rounded-md border border-slate-200 px-4 py-2.5 text-center text-sm text-slate-500 dark:border-slate-800 dark:text-slate-400">
-                    You've blocked this seller — unblock them to send a message.
+                    You&apos;ve blocked this seller — unblock them to send a message.
                   </p>
                 ) : (
                   <form action={messageSeller}>

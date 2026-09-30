@@ -16,28 +16,26 @@ export default function AvatarUpload({
   fallbackLetter: string;
 }) {
   const [isPending, startTransition] = useTransition();
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  // The local blob preview, and the avatarUrl it was picked over. Once the
+  // server's avatarUrl actually changes (revalidatePath after a successful
+  // upload re-rendering this component with the real value), the preview no
+  // longer applies and the persisted URL takes over — otherwise it would stay
+  // up for the rest of the page's life, permanently hiding the Remove control
+  // below.
+  const [preview, setPreview] = useState<{ url: string; over: string | null } | null>(null);
+  const previewUrl = preview && preview.over === avatarUrl ? preview.url : null;
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      if (preview) URL.revokeObjectURL(preview.url);
     };
-  }, [previewUrl]);
-
-  // Once the server's avatarUrl actually changes (revalidatePath after a
-  // successful upload re-rendering this component with the real value),
-  // drop the local blob preview and let the persisted URL take over —
-  // otherwise previewUrl would stay set for the rest of the page's life,
-  // permanently hiding the Remove control below.
-  useEffect(() => {
-    setPreviewUrl(null);
-  }, [avatarUrl]);
+  }, [preview]);
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    setPreviewUrl(URL.createObjectURL(file));
+    setPreview({ url: URL.createObjectURL(file), over: avatarUrl });
 
     startTransition(async () => {
       const compressed = await compressImage(file, { maxDimension: MAX_AVATAR_DIMENSION });
@@ -46,7 +44,7 @@ export default function AvatarUpload({
       const result = await updateAvatar(null, formData);
       if (result.error) {
         toast(result.error, "error");
-        setPreviewUrl(null);
+        setPreview(null);
       } else {
         toast("Profile photo updated.");
       }
@@ -60,7 +58,7 @@ export default function AvatarUpload({
       if (result.error) {
         toast(result.error, "error");
       } else {
-        setPreviewUrl(null);
+        setPreview(null);
         toast("Profile photo removed.");
       }
     });

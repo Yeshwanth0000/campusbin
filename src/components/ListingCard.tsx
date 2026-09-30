@@ -49,8 +49,9 @@ export default function ListingCard({
   removedReason,
 }: ListingCardProps) {
   const showInterested = !hideInterested && sellerId && status === "available";
-  const isNew =
-    createdAt && Date.now() - new Date(createdAt).getTime() < 1000 * 60 * 60 * 24 * 3;
+  // eslint-disable-next-line react-hooks/purity -- the "New" badge only needs day precision, so reading the clock while rendering is harmless
+  const listedAgoMs = createdAt ? Date.now() - new Date(createdAt).getTime() : null;
+  const isNew = listedAgoMs !== null && listedAgoMs < 1000 * 60 * 60 * 24 * 3;
 
   return (
     <Link

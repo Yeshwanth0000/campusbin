@@ -16,6 +16,13 @@ const OVERLAY_ID = "notifications";
 // long session sitting on one page doesn't grow this unbounded.
 const MAX_LIVE_NOTIFICATIONS = 20;
 
+// Where this browser stands on push notifications, for the prompt in the panel.
+async function detectPushState(): Promise<PushState> {
+  if (!pushSupported()) return "unsupported";
+  if (Notification.permission === "denied") return "denied";
+  return (await getExistingSubscription()) ? "on" : "off";
+}
+
 export default function NotificationBell({
   userId,
   unreadCount,
@@ -37,15 +44,13 @@ export default function NotificationBell({
   const [panelTop, setPanelTop] = useState(64);
 
   useEffect(() => {
-    if (!pushSupported()) {
-      setPushState("unsupported");
-      return;
-    }
-    if (Notification.permission === "denied") {
-      setPushState("denied");
-      return;
-    }
-    getExistingSubscription().then((sub) => setPushState(sub ? "on" : "off"));
+    let cancelled = false;
+    detectPushState().then((state) => {
+      if (!cancelled) setPushState(state);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   async function handleEnablePush() {

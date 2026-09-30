@@ -49,11 +49,21 @@ export default function SellForm({
   const selectedCategory = categories.find((c) => c.id === categoryId);
   const customFields = useMemo(() => getCategoryFields(selectedCategory?.slug), [selectedCategory]);
 
+  // Every preview URL made while the form is open, released when it unmounts
+  // rather than as photos are swapped out, so a preview on screen can never
+  // point at a released URL (an append that's still compressing restores the
+  // photos it started with, previews included).
+  const previewUrlsToRelease = useRef<string[]>([]);
   useEffect(() => {
-    const urls = selectedFiles.map((file) => URL.createObjectURL(file));
-    setPreviewUrls(urls);
+    const urls = previewUrlsToRelease.current;
     return () => urls.forEach((url) => URL.revokeObjectURL(url));
-  }, [selectedFiles]);
+  }, []);
+
+  function makePreviewUrl(file: File) {
+    const url = URL.createObjectURL(file);
+    previewUrlsToRelease.current.push(url);
+    return url;
+  }
 
   function syncInputFiles(files: File[]) {
     const dataTransfer = new DataTransfer();
@@ -79,6 +89,7 @@ export default function SellForm({
 
     const next = [...trimmed.slice(0, alreadyCompressed.length), ...compressed];
     setSelectedFiles(next);
+    setPreviewUrls([...previewUrls.slice(0, alreadyCompressed.length), ...compressed.map(makePreviewUrl)]);
     syncInputFiles(next);
   }
 
@@ -107,6 +118,7 @@ export default function SellForm({
     const next = selectedFiles.filter((_, i) => i !== index);
     setTrimmedCount(0);
     setSelectedFiles(next);
+    setPreviewUrls(previewUrls.filter((_, i) => i !== index));
     syncInputFiles(next);
   }
 
