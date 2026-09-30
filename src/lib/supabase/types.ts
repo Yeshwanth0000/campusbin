@@ -526,54 +526,6 @@ export type Database = {
           },
         ]
       }
-      saved_searches: {
-        Row: {
-          category_id: string | null
-          condition: string | null
-          created_at: string
-          id: string
-          last_viewed_at: string
-          posted: string | null
-          query: string | null
-          user_id: string
-        }
-        Insert: {
-          category_id?: string | null
-          condition?: string | null
-          created_at?: string
-          id?: string
-          last_viewed_at?: string
-          posted?: string | null
-          query?: string | null
-          user_id: string
-        }
-        Update: {
-          category_id?: string | null
-          condition?: string | null
-          created_at?: string
-          id?: string
-          last_viewed_at?: string
-          posted?: string | null
-          query?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "saved_searches_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "categories"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "saved_searches_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
     }
     Views: {
       [_ in never]: never
