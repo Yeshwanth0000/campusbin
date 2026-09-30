@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { storagePathsFromUrls } from "@/lib/storage";
 import { checkImageSafety } from "@/lib/moderation/imageSafety";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export type ProfileResult = { error: string } | { error: null };
 
@@ -65,9 +66,20 @@ export async function updateAvatar(
 
   // Checked before the old picture is cleared out below, so a refused photo
   // leaves the current one in place.
-  const safety = await checkImageSafety(Buffer.from(await file.arrayBuffer()), "avatar");
+  const bytes = Buffer.from(await file.arrayBuffer());
+  const safety = await checkImageSafety(bytes, "avatar");
   if (safety.blocked) {
     return { error: safety.reason };
+  }
+
+  // Storage only accepts uploads through the service-role client (users can't
+  // upload on their own, so nobody can skip the check above). Confirmed
+  // before anything is deleted, so a missing key can't cost the user their
+  // current picture.
+  const admin = createAdminClient();
+  if (!admin) {
+    console.error("SUPABASE_SERVICE_ROLE_KEY is not set, so profile pictures can't be stored.");
+    return { error: "Photos can't be uploaded right now. Please try again later." };
   }
 
   // Clear out any previous avatar file(s) first — upsert only overwrites an
@@ -78,11 +90,13 @@ export async function updateAvatar(
     await supabase.storage.from("avatars").remove(existing.map((f) => `${user.id}/${f.name}`));
   }
 
-  const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+  // Plain characters only, so the public URL matches the stored name exactly.
+  const extension = file.name.split(".").pop()?.toLowerCase() ?? "";
+  const ext = /^[a-z0-9]{1,5}$/.test(extension) ? extension : "jpg";
   const path = `${user.id}/avatar.${ext}`;
-  const { error: uploadError } = await supabase.storage
+  const { error: uploadError } = await admin.storage
     .from("avatars")
-    .upload(path, file, { upsert: true });
+    .upload(path, bytes, { upsert: true, contentType: file.type || "image/jpeg" });
   if (uploadError) {
     return { error: `Upload failed: ${uploadError.message}` };
   }

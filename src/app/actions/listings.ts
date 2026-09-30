@@ -4,7 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { CATEGORY_CUSTOM_FIELDS } from "@/lib/categoryFields";
-import { storagePathsFromUrls } from "@/lib/storage";
+import { safeFileName, storagePathsFromUrls } from "@/lib/storage";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { checkImageSafety } from "@/lib/moderation/imageSafety";
 import { MAX_ACTIVE_LISTINGS } from "@/lib/listingLimits";
 
@@ -31,6 +32,38 @@ async function activeListingLimitError(
     return `You've reached the limit of ${MAX_ACTIVE_LISTINGS} active listings. Mark one as sold or delete it before posting another.`;
   }
   return null;
+}
+
+// Stores photos that have already passed moderation, and returns their public
+// URLs. Uses the service-role client because storage no longer accepts
+// uploads from users themselves, which is what stops anyone skipping
+// moderation by uploading straight from the browser.
+async function storeListingPhotos(
+  sellerId: string,
+  files: File[],
+  buffers: Buffer[]
+): Promise<{ urls: string[] } | { error: string }> {
+  if (files.length === 0) {
+    return { urls: [] };
+  }
+  const admin = createAdminClient();
+  if (!admin) {
+    console.error("SUPABASE_SERVICE_ROLE_KEY is not set, so listing photos can't be stored.");
+    return { error: "Photos can't be uploaded right now. Please try again later." };
+  }
+
+  const urls: string[] = [];
+  for (let i = 0; i < files.length; i++) {
+    const path = `${sellerId}/${crypto.randomUUID()}-${safeFileName(files[i].name)}`;
+    const { error } = await admin.storage
+      .from("listing-images")
+      .upload(path, buffers[i], { contentType: files[i].type || "image/jpeg" });
+    if (error) {
+      return { error: `Photo upload failed: ${error.message}` };
+    }
+    urls.push(admin.storage.from("listing-images").getPublicUrl(path).data.publicUrl);
+  }
+  return { urls };
 }
 
 function extractCustomFields(formData: FormData, categorySlug: string | null | undefined) {
@@ -123,21 +156,11 @@ export async function createListing(
     fileBuffers.push(buffer);
   }
 
-  const imageUrls: string[] = [];
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i];
-    const path = `${user.id}/${crypto.randomUUID()}-${file.name}`;
-    const { error: uploadError } = await supabase.storage
-      .from("listing-images")
-      .upload(path, fileBuffers[i], { contentType: file.type || "image/jpeg" });
-    if (uploadError) {
-      return { error: `Photo upload failed: ${uploadError.message}` };
-    }
-    const { data: publicUrl } = supabase.storage
-      .from("listing-images")
-      .getPublicUrl(path);
-    imageUrls.push(publicUrl.publicUrl);
+  const stored = await storeListingPhotos(user.id, files, fileBuffers);
+  if ("error" in stored) {
+    return { error: stored.error };
   }
+  const imageUrls = stored.urls;
 
   const { data: listing, error } = await supabase
     .from("listings")
@@ -184,7 +207,7 @@ export async function updateListing(
   const categoryId = String(formData.get("categoryId") ?? "") || null;
   const condition = String(formData.get("condition") ?? "") || null;
   const meetupSpot = String(formData.get("meetupSpot") ?? "").trim().slice(0, MEETUP_SPOT_MAX_LENGTH) || null;
-  const keptImages = formData.getAll("keptImages").map(String);
+  const requestedKeptImages = formData.getAll("keptImages").map(String);
   const newFiles = formData
     .getAll("images")
     .filter((f): f is File => f instanceof File && f.size > 0);
@@ -193,7 +216,7 @@ export async function updateListing(
   if (!listingId || !title || Number.isNaN(price) || price < 0) {
     return { error: "Please provide a title and a valid price." };
   }
-  if (keptImages.length + newFiles.length > 5) {
+  if (requestedKeptImages.length + newFiles.length > 5) {
     return { error: "You can have at most 5 photos total." };
   }
 
@@ -207,9 +230,12 @@ export async function updateListing(
     .eq("id", listingId)
     .eq("seller_id", user.id)
     .single();
-  const droppedImages = (original?.images ?? []).filter(
-    (url: string) => !keptImages.includes(url)
-  );
+  // The form sends the photos to keep back as plain strings, so only ones
+  // this listing really has count. Anything else would let a crafted request
+  // attach a photo that never went through moderation.
+  const originalImages: string[] = original?.images ?? [];
+  const keptImages = requestedKeptImages.filter((url) => originalImages.includes(url));
+  const droppedImages = originalImages.filter((url) => !keptImages.includes(url));
 
   let categorySlug: string | null = null;
   if (categoryId) {
@@ -234,21 +260,11 @@ export async function updateListing(
     newFileBuffers.push(buffer);
   }
 
-  const imageUrls: string[] = [...keptImages];
-  for (let i = 0; i < newFiles.length; i++) {
-    const file = newFiles[i];
-    const path = `${user.id}/${crypto.randomUUID()}-${file.name}`;
-    const { error: uploadError } = await supabase.storage
-      .from("listing-images")
-      .upload(path, newFileBuffers[i], { contentType: file.type || "image/jpeg" });
-    if (uploadError) {
-      return { error: `Photo upload failed: ${uploadError.message}` };
-    }
-    const { data: publicUrl } = supabase.storage
-      .from("listing-images")
-      .getPublicUrl(path);
-    imageUrls.push(publicUrl.publicUrl);
+  const stored = await storeListingPhotos(user.id, newFiles, newFileBuffers);
+  if ("error" in stored) {
+    return { error: stored.error };
   }
+  const imageUrls = [...keptImages, ...stored.urls];
 
   const { error } = await supabase
     .from("listings")
